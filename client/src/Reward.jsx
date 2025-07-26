@@ -1,14 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Dashboard.css';
 
 const Reward = () => {
-  const rewardData = [
-    { directBusiness: '$10,000', reward: '$250' },
-    { directBusiness: '$25,000', reward: '$500' },
-    { directBusiness: '$100,000', reward: '$1,000' },
-    { directBusiness: '$500,000', reward: '$2,000' },
-    { directBusiness: '$2,000,000', reward: '$25,000' }
+  const [rewardData, setRewardData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userStatus, setUserStatus] = useState({
+    directBusiness: 0,
+    currentReward: 0,
+    totalRewardEarned: 0
+  });
+
+  // Default fallback data if API fails
+  const defaultRewardData = [
+    { directBusiness: 10000, reward: 250 },
+    { directBusiness: 25000, reward: 500 },
+    { directBusiness: 50000, reward: 1000 },
+    { directBusiness: 100000, reward: 2000 },
+    { directBusiness: 200000, reward: 5000 },
+    { directBusiness: 500000, reward: 10000 },
+    { directBusiness: 1000000, reward: 25000 },
+    { directBusiness: 2000000, reward: 50000 }
   ];
+
+  useEffect(() => {
+    fetchRewardSettings();
+    fetchUserStatus();
+  }, []);
+
+  const fetchRewardSettings = async () => {
+    try {
+      const response = await axios.get('https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings');
+      if (response.data.success && response.data.rewards.length > 0) {
+        setRewardData(response.data.rewards);
+      } else {
+        setRewardData(defaultRewardData);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reward settings:', error);
+      setRewardData(defaultRewardData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserStatus = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?._id) {
+        const response = await axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/reward-status/${user._id}`);
+        if (response.data.success) {
+          setUserStatus(response.data.status);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch user reward status:', error);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const referralLevels = [
     { level: 'Level 1', percentage: '15%' },
@@ -23,6 +80,18 @@ const Reward = () => {
     { level: 'Level 10', percentage: '2%' }
   ];
 
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-main">
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <h2>Loading reward data...</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-main">
@@ -31,6 +100,38 @@ const Reward = () => {
           <div className="star-logo">
             <span className="star-icon">⭐</span>
             <h1 className="company-name">STAR TRADERS</h1>
+          </div>
+        </div>
+
+        {/* User Current Status */}
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '30px',
+          borderRadius: '15px',
+          marginBottom: '30px',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ margin: '0 0 20px 0', fontSize: '1.5rem' }}>Your Current Status</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+            <div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>
+                {formatCurrency(userStatus.directBusiness)}
+              </div>
+              <div style={{ opacity: 0.9 }}>Direct Business</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>
+                {formatCurrency(userStatus.currentReward)}
+              </div>
+              <div style={{ opacity: 0.9 }}>Current Reward Level</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '5px' }}>
+                {formatCurrency(userStatus.totalRewardEarned)}
+              </div>
+              <div style={{ opacity: 0.9 }}>Total Reward Earned</div>
+            </div>
           </div>
         </div>
 
@@ -46,8 +147,8 @@ const Reward = () => {
             
             {rewardData.map((item, index) => (
               <div key={index} className="reward-row">
-                <div className="reward-cell">{item.directBusiness}</div>
-                <div className="reward-cell reward-amount">{item.reward}</div>
+                <div className="reward-cell">{formatCurrency(item.directBusiness)}</div>
+                <div className="reward-cell reward-amount">{formatCurrency(item.reward)}</div>
               </div>
             ))}
           </div>

@@ -392,6 +392,63 @@ app.post('/api/admin/reward-settings', async (req, res) => {
   }
 });
 
+// Get user reward status
+app.get('/api/user/reward-status/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Calculate user's direct business (total deposits from direct referrals)
+    const directReferrals = await User.find({ referredBy: userId });
+    let directBusiness = 0;
+    
+    for (const referral of directReferrals) {
+      const deposits = await Transaction.find({ 
+        userId: referral._id, 
+        type: 'deposit',
+        status: 'approved'
+      });
+      directBusiness += deposits.reduce((sum, deposit) => sum + (deposit.amount || 0), 0);
+    }
+
+    // Get reward settings to calculate current reward level
+    const rewardSettings = await RewardSettings.getSettings();
+    let currentReward = 0;
+    let totalRewardEarned = 0;
+
+    // Find the highest reward tier achieved
+    for (const tier of rewardSettings.rewards.sort((a, b) => b.directBusiness - a.directBusiness)) {
+      if (directBusiness >= tier.directBusiness) {
+        currentReward = tier.reward;
+        break;
+      }
+    }
+
+    // Calculate total reward earned (sum of all achieved tiers)
+    for (const tier of rewardSettings.rewards) {
+      if (directBusiness >= tier.directBusiness) {
+        totalRewardEarned += tier.reward;
+      }
+    }
+
+    res.json({
+      success: true,
+      status: {
+        directBusiness,
+        currentReward,
+        totalRewardEarned
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching user reward status:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch reward status' });
+  }
+});
+
 // Update Trading Income Settings
 app.post('/api/admin/trading-income-settings', async (req, res) => {
   try {
