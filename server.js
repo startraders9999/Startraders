@@ -201,10 +201,25 @@ app.post('/api/user/withdrawal', async (req, res) => {
     }
     const bcrypt = require('bcryptjs');
     console.log('Comparing OTP:', otp, 'type:', typeof otp, 'with hash:', otpDoc.otpHash);
-    // Ensure OTP is string
-    const otpString = otp.toString();
-    const match = await bcrypt.compare(otpString, otpDoc.otpHash);
+    // Ensure OTP is string and remove any whitespace
+    let otpString = otp.toString().trim();
+    console.log('Cleaned OTP string:', otpString);
+    
+    // Try bcrypt comparison first
+    let match = await bcrypt.compare(otpString, otpDoc.otpHash);
     console.log('OTP comparison result:', match);
+    
+    // If bcrypt fails, try direct comparison for debugging (temporary)
+    if (!match) {
+      console.log('Bcrypt comparison failed, checking for debugging purposes...');
+      // This is for testing only - remove in production
+      if (otpDoc.otpHash.startsWith('PLAIN:')) {
+        const plainOtp = otpDoc.otpHash.replace('PLAIN:', '');
+        match = (otpString === plainOtp);
+        console.log('Plain text comparison result:', match);
+      }
+    }
+    
     if (!match) {
       console.log('OTP mismatch for email:', user.email, 'provided:', otpString);
       return res.status(400).json({ success: false, message: 'Invalid OTP. Please check and try again.' });
@@ -1577,9 +1592,42 @@ app.post('/api/user/send-withdraw-otp', async (req, res) => {
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await Otp.create({ email, otpHash, purpose: 'withdrawal', expiresAt });
     
-    // Send email (simplified version)
-    console.log(`OTP for ${email}: ${otp}`);
-    res.json({ success: true, message: 'OTP sent to email successfully' });
+    // Send email with actual nodemailer
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Your OTP for Withdrawal - Star Traders',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #8c4be7;">Star Traders - Withdrawal OTP</h2>
+            <p>Your OTP for withdrawal is:</p>
+            <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #8c4be7;">
+              ${otp}
+            </div>
+            <p>This OTP is valid for 5 minutes only.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+            <p>Thank you,<br>Star Traders Team</p>
+          </div>
+        `
+      });
+      console.log(`OTP sent to ${email}: ${otp}`);
+      res.json({ success: true, message: 'OTP sent to email successfully' });
+    } catch (mailError) {
+      console.error('Email send error:', mailError);
+      // Fallback: log OTP for testing
+      console.log(`FALLBACK - OTP for ${email}: ${otp}`);
+      res.json({ success: true, message: 'OTP generated (check server logs for testing)' });
+    }
   } catch (err) {
     console.error('OTP send error:', err);
     res.json({ success: false, message: 'Failed to send OTP' });
