@@ -47,7 +47,7 @@ const Referral = () => {
       <div className="referral-theme-container">
         {/* Referral link block for all users */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-          <p className="text-sm text-gray-600">आपका Referral Link:</p>
+          <p className="text-sm text-gray-600">Your Referral Link:</p>
           <div className="flex items-center justify-between mt-2">
             <input
               type="text"
@@ -62,7 +62,7 @@ const Referral = () => {
               }}
               className="ml-2 bg-purple-600 text-white px-3 py-2 rounded text-sm"
             >
-              कॉपी करें
+              Copy Link
             </button>
           </div>
         </div>
@@ -141,7 +141,7 @@ const Referral = () => {
           {overview?.referralList && overview.referralList.length > 0 ? (
             <ReferralList data={overview.referralList} type="referral" />
           ) : (
-            <div className="referral-no-data">कोई referral नहीं मिला</div>
+            <div className="referral-no-data">No referrals found</div>
           )}
         </div>
       </div>
@@ -152,7 +152,7 @@ const Referral = () => {
           {overview?.incomeHistory && overview.incomeHistory.length > 0 ? (
             <ReferralList data={overview.incomeHistory} type="history" />
           ) : (
-            <div className="referral-no-data">कोई referral income history नहीं मिली</div>
+            <div className="referral-no-data">No referral income history found</div>
           )}
         </div>
       </div>

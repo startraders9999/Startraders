@@ -91,8 +91,8 @@ const Dashboard = () => {
 
   // Get user and referralCode safely
   const user = JSON.parse(localStorage.getItem('user'));
-  const referralCode = user && user.referralCode ? user.referralCode : '';
-  const referralLink = referralCode ? `https://startraders-f.onrender.com/registration?ref=${referralCode}` : '';
+  const referralCode = user && user._id ? user._id : '';
+  const referralLink = referralCode ? `https://startraders-f.onrender.com/register?ref=${referralCode}` : '';
 
   // Copy referral link to clipboard
   const [copied, setCopied] = useState(false);
