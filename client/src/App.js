@@ -8,7 +8,6 @@ import Login from './Login.jsx';
 import Register from './Register.jsx';
 import Dashboard from './Dashboard.js';
 import Trading from './Trading.js';
-// import ReferralIncome from './ReferralIncome.js';
 import ReferralOnTrading from './ReferralOnTrading.js';
 import ReferralIncome from './ReferralIncome.js';
 import RewardIncomeUser from './RewardIncome.js';
@@ -31,7 +30,7 @@ import UserDetail from './admin/pages/UserDetail.jsx';
 import Users from './admin/Users';
 import Deposits from './admin/Deposits';
 import Withdrawals from './admin/Withdrawals';
-import RewardIncome from './admin/RewardIncome';
+import AdminRewardIncome from './admin/RewardIncome';
 
 import Boosting from './admin/Boosting';
 import BoostingControl from './admin/BoostingControl';
@@ -77,7 +76,7 @@ const App = () => {
           <Route path="user/:id" element={<UserDetail />} />
           <Route path="deposits" element={<Deposits />} />
           <Route path="withdrawals" element={<Withdrawals />} />
-        <Route path="reward-income" element={<RewardIncome />} />
+        <Route path="reward-income" element={<AdminRewardIncome />} />
         <Route path="boosting" element={<BoostingControl />} />
           <Route path="offline-gateway" element={<OfflineGateway />} />
           <Route path="settings" element={<Settings />} />
