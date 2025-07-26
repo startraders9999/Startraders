@@ -1803,6 +1803,149 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
   }
 });
 
+// 🚨 PILOT DEBUG ROUTE - Clean और Simple OTP Verification
+app.post('/api/user/verify-withdraw-otp-pilot', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // 🚨 PILOT DEBUG START - यही logs Render में दिखेंगे
+    console.log("✅ PILOT DEBUG: API Hit hua!");
+    console.log("👉 Received Body:", JSON.stringify(req.body));
+    console.log("📧 Email received:", email);
+    console.log("🔢 OTP received:", otp, "Type:", typeof otp);
+
+    // Basic validation
+    if (!email || !otp) {
+      console.log("❌ Missing email or OTP");
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing email or OTP',
+        debug: 'Frontend not sending complete data'
+      });
+    }
+
+    // Check if using User model (old method) first
+    const User = require('./models/user');
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      console.log("❌ User not found:", email);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+
+    console.log("👤 User found:", user.name);
+
+    // 🔍 Check if user has withdrawOtp field (old method)
+    if (user.withdrawOtp) {
+      console.log("🔍 OLD METHOD - User Model OTP DEBUG:", {
+        email,
+        storedOtp: user.withdrawOtp,
+        receivedOtp: otp,
+        storedType: typeof user.withdrawOtp,
+        receivedType: typeof otp,
+        stringMatch: String(user.withdrawOtp) === String(otp),
+        expiry: user.otpExpire ? new Date(user.otpExpire) : 'No expiry'
+      });
+
+      // Check expiry (if exists)
+      if (user.otpExpire && user.otpExpire < Date.now()) {
+        console.log("⚠️ OTP expired");
+        return res.status(400).json({ 
+          success: false, 
+          message: 'OTP expired' 
+        });
+      }
+
+      // Compare OTPs
+      if (String(user.withdrawOtp) !== String(otp)) {
+        console.log("❌ OLD METHOD - OTP invalid");
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid OTP' 
+        });
+      }
+
+      console.log("✅ OLD METHOD - OTP Verified Successfully!");
+      return res.status(200).json({ 
+        success: true, 
+        message: 'OTP verified successfully' 
+      });
+    }
+
+    // 🔍 Check new OTP model method
+    const Otp = require('./models/otp');
+    
+    // Clean old expired OTPs
+    await Otp.deleteMany({ 
+      email, 
+      purpose: 'withdrawal',
+      expiresAt: { $lt: new Date() }
+    });
+    
+    const otpDoc = await Otp.findOne({ 
+      email, 
+      purpose: 'withdrawal',
+      expiresAt: { $gt: new Date() }
+    }).sort({ createdAt: -1 });
+
+    console.log("🔍 NEW METHOD - OTP Model DEBUG:", {
+      searchEmail: email,
+      found: !!otpDoc,
+      otpDocEmail: otpDoc?.email,
+      expires: otpDoc?.expiresAt,
+      created: otpDoc?.createdAt,
+      timeLeft: otpDoc ? Math.round((new Date(otpDoc.expiresAt) - new Date()) / 1000) + 's' : 'N/A'
+    });
+    
+    if (!otpDoc) {
+      console.log("❌ NEW METHOD - No OTP found in database");
+      return res.status(400).json({ 
+        success: false, 
+        message: 'OTP not found. Please request a new OTP.' 
+      });
+    }
+    
+    // Use bcryptjs for comparison
+    const bcrypt = require('bcryptjs');
+    const otpString = String(otp).trim();
+    
+    console.log("🔐 NEW METHOD - Comparing OTP:", { 
+      provided: otpString, 
+      hashExists: !!otpDoc.otpHash 
+    });
+    
+    const match = await bcrypt.compare(otpString, otpDoc.otpHash);
+    console.log("✅ NEW METHOD - OTP Comparison Result:", match);
+    
+    if (!match) {
+      console.log("❌ NEW METHOD - OTP MISMATCH");
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid OTP. Please check and try again.' 
+      });
+    }
+    
+    console.log("✅ NEW METHOD - OTP VERIFIED SUCCESSFULLY!");
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'OTP Verified Successfully' 
+    });
+    
+  } catch (err) {
+    console.log("🔥 PILOT DEBUG - Server Error:", err.message);
+    console.error("💥 Full Error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server Error',
+      error: err.message 
+    });
+  }
+});
+
 // DEBUG: Test OTP generation and verification
 app.post('/api/debug/test-otp', async (req, res) => {
   try {
@@ -1899,6 +2042,87 @@ app.post('/api/debug/test-otp', async (req, res) => {
       error: error.message, 
       stack: error.stack,
       message: '❌ OTP test failed'
+    });
+  }
+});
+
+// 🚨 INSTANT OTP TEST - Generate और Verify एक साथ करने के लिए
+app.post('/api/debug/instant-otp-test', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    const testEmail = email || 'test@startraders.com';
+    
+    console.log('🚨 INSTANT OTP TEST for email:', testEmail);
+    
+    // ✅ Step 1: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('🔢 Generated test OTP:', otp);
+    
+    // ✅ Step 2: Hash and save
+    const bcrypt = require('bcryptjs');
+    const otpHash = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    
+    const Otp = require('./models/otp');
+    
+    // Clean old test OTPs
+    await Otp.deleteMany({ email: testEmail, purpose: 'withdrawal' });
+    
+    // Save new OTP
+    const otpDoc = await Otp.create({
+      email: testEmail,
+      otpHash: otpHash,
+      purpose: 'withdrawal',
+      expiresAt: expiresAt
+    });
+    
+    console.log('💾 Test OTP saved to database');
+    
+    // ✅ Step 3: Immediate verification test
+    const verifyResult = await bcrypt.compare(otp, otpDoc.otpHash);
+    console.log('🔐 Immediate verification result:', verifyResult);
+    
+    // ✅ Step 4: Test with different input formats
+    const inputTests = [
+      String(otp),
+      parseInt(otp),
+      ` ${otp} `,
+      `${otp}\n`,
+      `${otp}\t`
+    ];
+    
+    const testResults = [];
+    for (const input of inputTests) {
+      const cleanInput = String(input).trim();
+      const match = await bcrypt.compare(cleanInput, otpDoc.otpHash);
+      testResults.push({
+        original: input,
+        cleaned: cleanInput,
+        match: match,
+        status: match ? '✅' : '❌'
+      });
+    }
+    
+    // Cleanup
+    await Otp.deleteOne({ _id: otpDoc._id });
+    
+    res.json({
+      success: true,
+      testEmail: testEmail,
+      generatedOtp: otp,
+      immediateVerification: verifyResult,
+      inputFormatTests: testResults,
+      message: verifyResult ? '✅ OTP system working correctly!' : '❌ OTP system has issues',
+      instructions: `Use this OTP for testing: ${otp}`,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('💥 Instant OTP test error:', error);
+    res.json({
+      success: false,
+      error: error.message,
+      message: '❌ Instant OTP test failed'
     });
   }
 });
