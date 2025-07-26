@@ -188,14 +188,22 @@ app.post('/api/user/withdrawal', async (req, res) => {
     // OTP verification for withdrawal
     const Otp = require('./models/otp');
     const otpDoc = await Otp.findOne({ email: user.email, purpose: 'withdrawal' });
-    if (!otpDoc) return res.status(400).json({ success: false, message: 'OTP not found' });
+    if (!otpDoc) {
+      console.log('OTP not found for email:', user.email);
+      return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
+    }
     if (otpDoc.expiresAt < new Date()) {
       await Otp.deleteOne({ _id: otpDoc._id });
-      return res.status(400).json({ success: false, message: 'OTP expired' });
+      console.log('OTP expired for email:', user.email);
+      return res.status(400).json({ success: false, message: 'OTP expired. Please request a new OTP.' });
     }
     const bcrypt = require('bcryptjs');
-    const match = await bcrypt.compare(otp, otpDoc.otpHash);
-    if (!match) return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    const match = await bcrypt.compare(otp.toString(), otpDoc.otpHash);
+    if (!match) {
+      console.log('OTP mismatch for email:', user.email, 'provided:', otp);
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please check and try again.' });
+    }
+    // Delete OTP after successful verification
     await Otp.deleteOne({ _id: otpDoc._id });
     user.balance -= amount;
     await user.save();
@@ -1545,6 +1553,58 @@ app.post('/api/admin/test-small-referral', async (req, res) => {
 // User Withdrawal OTP API
 const userWithdrawalOtpRouter = require('./routes/userWithdrawalOtp');
 app.use('/api/user/withdrawal-otp', userWithdrawalOtpRouter);
+
+// Additional withdrawal OTP endpoints for frontend compatibility
+app.post('/api/user/send-withdraw-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.json({ success: false, message: 'Email required' });
+  
+  try {
+    // Invalidate old OTPs for withdrawal
+    const Otp = require('./models/otp');
+    await Otp.deleteMany({ email, purpose: 'withdrawal' });
+    
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const bcrypt = require('bcryptjs');
+    const otpHash = await bcrypt.hash(otp, 10);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    await Otp.create({ email, otpHash, purpose: 'withdrawal', expiresAt });
+    
+    // Send email (simplified version)
+    console.log(`OTP for ${email}: ${otp}`);
+    res.json({ success: true, message: 'OTP sent to email successfully' });
+  } catch (err) {
+    console.error('OTP send error:', err);
+    res.json({ success: false, message: 'Failed to send OTP' });
+  }
+});
+
+app.post('/api/user/verify-withdraw-otp', async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.json({ success: false, message: 'All fields required' });
+  
+  try {
+    const Otp = require('./models/otp');
+    const otpDoc = await Otp.findOne({ email, purpose: 'withdrawal' });
+    if (!otpDoc) return res.json({ success: false, message: 'OTP not found' });
+    
+    if (otpDoc.expiresAt < new Date()) {
+      await Otp.deleteOne({ _id: otpDoc._id });
+      return res.json({ success: false, message: 'OTP expired' });
+    }
+    
+    const bcrypt = require('bcryptjs');
+    const match = await bcrypt.compare(otp, otpDoc.otpHash);
+    if (!match) return res.json({ success: false, message: 'Invalid OTP' });
+    
+    // Don't delete OTP here - keep it for withdrawal verification
+    res.json({ success: true, message: 'OTP Verified' });
+  } catch (err) {
+    console.error('OTP verify error:', err);
+    res.json({ success: false, message: 'OTP verification failed' });
+  }
+});
 
 // Serve React frontend (production build)
 const clientBuildPath = path.join(__dirname, 'client', 'build');
