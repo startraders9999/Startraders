@@ -9,8 +9,8 @@ const menuItems = [
   { label: 'Withdrawal', icon: <FaMoneyBill />, route: '/withdrawal' },
   { label: 'Team', icon: <FaUsers />, route: '/team' },
   { label: 'Trading Income', icon: <FaChartLine />, route: '/trading-income' },
-  { label: 'Direct Referral Income', icon: <FaUsers />, route: '/direct-referral' },
-  { label: 'Trading Income on Direct Referral', icon: <FaExchangeAlt />, route: '/trading-on-referral' },
+  { label: 'Direct Referral Income', icon: <FaUsers />, route: '/direct-referral-income' },
+  { label: 'Referral Income on Trading Income', icon: <FaExchangeAlt />, route: '/referral-on-trading' },
   { label: 'Reward Income', icon: <FaGift />, route: '/reward-income' },
   { label: 'Salary Income', icon: <FaMoneyBill />, route: '/salary-income' }
 ];
