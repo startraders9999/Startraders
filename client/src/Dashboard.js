@@ -28,6 +28,7 @@ const Dashboard = () => {
   // Wallet balances
   const [availableFunds, setAvailableFunds] = useState(0);
   const [referralIncome, setReferralIncome] = useState(0);
+  const [referralTradingIncome, setReferralTradingIncome] = useState(0);
   const [supportSettings, setSupportSettings] = useState({
     telegramSupportLink: 'https://t.me/startraderssupport',
     supportEmail: 'support@startraders.com',
@@ -72,6 +73,18 @@ const Dashboard = () => {
         }
       })
       .catch(() => setReferralIncome(0));
+
+    // Referral Trading Income
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/${user._id}`)
+      .then(res => {
+        if (res.data.success && typeof res.data.totalIncome === 'number') {
+          setReferralTradingIncome(res.data.totalIncome);
+        } else {
+          setReferralTradingIncome(0);
+        }
+      })
+      .catch(() => setReferralTradingIncome(0));
 
     // Support Settings
     axios
@@ -168,7 +181,7 @@ const Dashboard = () => {
             <div className="grid-row">
               <div className="grid-box clickable" onClick={() => navigate('/referral-on-trading')}>
                 <FaExchangeAlt style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
-                <span>REFERRAL INCOME ON TRADING INCOME</span><span>$0</span>
+                <span>REFERRAL INCOME ON TRADING INCOME</span><span>${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="grid-box clickable" onClick={() => navigate('/reward-income')}>
                 <FaGift style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
@@ -205,7 +218,7 @@ const Dashboard = () => {
               </div>
               <div className="wallet-card" onClick={() => navigate('/referral-on-trading')} style={{cursor:'pointer'}}>
                 <FaWallet className="wallet-icon" />
-                Referral on Trading Income<br />$0
+                Referral on Trading Income<br />${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </div>
               </div>
               <div className="wallet-btn-row">

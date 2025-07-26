@@ -170,6 +170,66 @@ router.post('/admin/trigger-referral-trading-income', async (req, res) => {
   }
 });
 
+// Create sample data for testing
+router.post('/admin/create-sample-data', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    if (!userId) {
+      return res.json({ success: false, message: 'Missing userId' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ success: false, message: 'User not found' });
+    }
+
+    // Create sample referral trading income records
+    const sampleData = [
+      { level: 1, percentage: 15, tradingAmount: 1000, incomeAmount: 150 },
+      { level: 2, percentage: 10, tradingAmount: 500, incomeAmount: 50 },
+      { level: 3, percentage: 8, tradingAmount: 800, incomeAmount: 64 },
+      { level: 1, percentage: 15, tradingAmount: 1200, incomeAmount: 180 }
+    ];
+
+    let totalSampleIncome = 0;
+
+    for (const sample of sampleData) {
+      const referralIncome = new ReferralTradingIncome({
+        userId: userId,
+        fromUserId: userId, // Self for testing
+        level: sample.level,
+        percentage: sample.percentage,
+        tradingAmount: sample.tradingAmount,
+        incomeAmount: sample.incomeAmount
+      });
+
+      await referralIncome.save();
+      totalSampleIncome += sample.incomeAmount;
+    }
+
+    // Update user with sample data
+    await User.findByIdAndUpdate(userId, {
+      $inc: { 
+        balance: totalSampleIncome,
+        totalReferralTradingIncome: totalSampleIncome
+      },
+      directReferrals: 3,
+      unlockedLevels: 6
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Sample data created successfully',
+      totalIncome: totalSampleIncome,
+      recordsCreated: sampleData.length
+    });
+  } catch (error) {
+    console.error('Error creating sample data:', error);
+    res.json({ success: false, message: 'Server error' });
+  }
+});
+
 // Export the distribution function for use in other modules
 module.exports = {
   router,
