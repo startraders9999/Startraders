@@ -30,14 +30,27 @@ const Reward = () => {
 
   const fetchRewardSettings = async () => {
     try {
-      const response = await axios.get('https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings');
+      console.log('Fetching reward settings from API...');
+      const timestamp = new Date().getTime();
+      const response = await axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      console.log('API Response:', response.data);
+      
       if (response.data.success && response.data.rewards.length > 0) {
+        console.log('Setting reward data from API:', response.data.rewards);
         setRewardData(response.data.rewards);
       } else {
+        console.log('API response invalid, using default data');
         setRewardData(defaultRewardData);
       }
     } catch (error) {
       console.error('Failed to fetch reward settings:', error);
+      console.log('Error occurred, using default data');
       setRewardData(defaultRewardData);
     } finally {
       setLoading(false);
@@ -101,6 +114,27 @@ const Reward = () => {
             <span className="star-icon">⭐</span>
             <h1 className="company-name">STAR TRADERS</h1>
           </div>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchRewardSettings();
+              fetchUserStatus();
+            }}
+            style={{
+              background: '#8c4be7',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              marginTop: '10px'
+            }}
+          >
+            🔄 Refresh Reward Data
+          </button>
         </div>
 
         {/* User Current Status */}
