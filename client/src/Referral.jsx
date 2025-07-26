@@ -13,7 +13,7 @@ const Referral = () => {
   const fetchOverview = () => {
     if (!user?._id) return;
     setLoading(true);
-    const url = `https://startraders-fullstack.onrender.com/api/user/referral-overview/${user._id}`;
+    const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
     console.log('[Referral] Fetching:', url);
     axios.get(url, {
       headers: {

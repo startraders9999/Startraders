@@ -1,7 +1,7 @@
 // Minor update for deployment trigger
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from './api';
 import './register.css';
 // import logo from './assets/logo.png';
 
@@ -33,8 +33,7 @@ function Register() {
       return;
     }
     try {
-      const url = 'https://startraders-fullstack.onrender.com/api/register';
-      const res = await axios.post(url, {
+      const res = await API.post('/register', {
         sponsorId: sponsorId ? sponsorId.toUpperCase() : '',
         name,
         email,

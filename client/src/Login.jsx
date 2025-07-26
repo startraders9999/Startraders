@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from './api';
 import './login.css';
 // import logo from './assets/logo.png';
 
@@ -14,7 +14,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('https://startraders-fullstack.onrender.com/api/login', {
+      const res = await API.post('/login', {
         email,
         password,
       });

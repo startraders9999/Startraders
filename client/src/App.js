@@ -19,6 +19,9 @@ import Reward from './Reward';
 import Report from './Report';
 import Support from './Support.jsx';
 
+// Error Boundary and API Status Checker
+import ErrorBoundary, { APIStatusChecker } from './components/ErrorBoundary';
+
 
 // ✅ Admin pages
 import ProtectedAdminLayout from './admin/ProtectedAdminLayout';
@@ -46,10 +49,12 @@ import Referral from './Referral.jsx';
 
 const App = () => {
   return (
-    <div>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+    <ErrorBoundary>
+      <APIStatusChecker />
+      <div>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/staking" element={<Staking />} />
           <Route path="/reward" element={<Reward />} />
           <Route path="/team" element={<Team />} />
@@ -98,6 +103,7 @@ const App = () => {
         <Route path="*" element={<h1 style={{ color: 'white' }}>Page Not Found</h1>} />
       </Routes>
     </div>
+    </ErrorBoundary>
   );
 };
 

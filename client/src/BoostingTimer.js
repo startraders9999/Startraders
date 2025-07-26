@@ -29,7 +29,7 @@ const BoostingTimer = ({ userId }) => {
 
   const checkBoostingStatus = async () => {
     try {
-      const response = await axios.get(`https://startraders-fullstack.onrender.com/api/user/check-boosting/${userId}`);
+      const response = await axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/check-boosting/${userId}`);
       if (response.data.success) {
         setBoosting(response.data.boosting);
         setDirectReferrals(response.data.directReferrals || 0);

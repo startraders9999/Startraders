@@ -8,7 +8,7 @@ const Users = () => {
 
   useEffect(() => {
     axios
-      .get('https://startraders-fullstack.onrender.com/api/admin/users')
+      .get('https://startraders-fullstack-9ayr.onrender.com/api/admin/users')
       .then((res) => {
         if (res.data.success) {
           setUsers(res.data.users);

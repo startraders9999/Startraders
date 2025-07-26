@@ -12,7 +12,7 @@ const Deposits = () => {
 
   const fetchDeposits = async () => {
     try {
-      const res = await axios.get('https://startraders-fullstack.onrender.com/api/admin/deposits');
+      const res = await axios.get('https://startraders-fullstack-9ayr.onrender.com/api/admin/deposits');
       if (Array.isArray(res.data)) {
         setDeposits(res.data);
       } else {
@@ -26,7 +26,7 @@ const Deposits = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post('https://startraders-fullstack.onrender.com/api/admin/approve-deposit', { id });
+      await axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/approve-deposit', { id });
       fetchDeposits();
     } catch (err) {
       console.error('Error approving deposit:', err);
@@ -35,7 +35,7 @@ const Deposits = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post('https://startraders-fullstack.onrender.com/api/admin/reject-deposit', { id });
+      await axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/reject-deposit', { id });
       fetchDeposits();
     } catch (err) {
       console.error('Error rejecting deposit:', err);

@@ -67,4 +67,4 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-build/ 
+# build/ - commented out to allow client/build folder for deployment 

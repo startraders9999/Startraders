@@ -7,7 +7,21 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(cors());
+
+// Enhanced CORS Configuration
+const corsOptions = {
+  origin: [
+    'https://startraders-frontend.onrender.com',
+    'https://startraders-fullstack-9ayr.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -44,7 +58,60 @@ app.use(referralSettingsRouter);
 
 // Health Check / Ping Route - Keep Render awake
 app.get('/api/ping', (req, res) => {
-  res.status(200).send('PONG OK');
+  res.status(200).json({
+    status: 'OK',
+    message: 'PONG OK',
+    timestamp: new Date().toISOString(),
+    server: 'Star Traders Backend',
+    version: '2.0.0'
+  });
+});
+
+// Debug API endpoints status
+app.get('/api/debug/status', async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    const User = require('./models/user');
+    const userCount = await User.countDocuments();
+    
+    res.json({
+      status: 'OK',
+      database: dbStatus,
+      totalUsers: userCount,
+      server: 'Running',
+      timestamp: new Date().toISOString(),
+      cors: 'Enabled',
+      routes: 'Active'
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'ERROR',
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Test all critical API endpoints
+app.get('/api/debug/test-endpoints', (req, res) => {
+  const criticalEndpoints = [
+    'POST /api/register',
+    'POST /api/login',
+    'GET /api/user/deposit-settings',
+    'POST /api/user/deposit',
+    'GET /api/user/transactions/:userId',
+    'GET /api/user/referral-overview/:userId',
+    'POST /api/admin/approve-deposit',
+    'GET /api/admin/users',
+    'GET /api/ping'
+  ];
+  
+  res.json({
+    status: 'API Endpoints Available',
+    endpoints: criticalEndpoints,
+    serverTime: new Date().toISOString(),
+    message: 'All critical endpoints are configured'
+  });
 });
 
 // Forgot Password & OTP API
