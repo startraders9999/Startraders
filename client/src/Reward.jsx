@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import './RewardIncome.css';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import UniversalResponsiveLayout from './UniversalResponsiveLayout';
 import { FaGift, FaUsers } from 'react-icons/fa';
 import logo from './assets/logo.png';
+import './Dashboard.css';
 
-const RewardIncome = () => {
-  const [rewardSettings, setRewardSettings] = useState([]);
+const Reward = () => {
+  const [rewardData, setRewardData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [userStatus, setUserStatus] = useState({
     directBusiness: 0,
     currentReward: 0,
     totalRewardEarned: 0
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchRewardSettings();
@@ -34,10 +34,10 @@ const RewardIncome = () => {
       
       if (response.data.success && response.data.rewards && response.data.rewards.length > 0) {
         console.log('Setting reward data from API:', response.data.rewards);
-        setRewardSettings(response.data.rewards);
+        setRewardData(response.data.rewards);
       } else {
         console.log('API response invalid or empty, using default data');
-        setRewardSettings([
+        setRewardData([
           { directBusiness: 10000, reward: 250 },
           { directBusiness: 25000, reward: 500 },
           { directBusiness: 50000, reward: 1000 },
@@ -51,7 +51,7 @@ const RewardIncome = () => {
     } catch (error) {
       console.error('Failed to fetch reward settings:', error);
       console.log('Error occurred, using default data');
-      setRewardSettings([
+      setRewardData([
         { directBusiness: 10000, reward: 250 },
         { directBusiness: 25000, reward: 500 },
         { directBusiness: 50000, reward: 1000 },
@@ -69,7 +69,7 @@ const RewardIncome = () => {
   const fetchUserStatus = async () => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      if (user && user._id) {
+      if (user?._id) {
         const response = await axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/reward-status/${user._id}`);
         if (response.data.success) {
           setUserStatus(response.data.status);
@@ -124,7 +124,7 @@ const RewardIncome = () => {
   return (
     <UniversalResponsiveLayout>
       <div style={{ background: '#f8f6ff', minHeight: '100vh', padding: '20px' }}>
-        {/* Header with Star Traders logo */}
+        {/* Header with Star Traders logo and brand name */}
         <div style={{
           width: '100%',
           background: '#8c4be7',
@@ -255,7 +255,7 @@ const RewardIncome = () => {
                 </tr>
               </thead>
               <tbody>
-                {rewardSettings.map((item, index) => (
+                {rewardData.map((item, index) => (
                   <tr key={index} style={{ 
                     borderBottom: '1px solid #e0e0e0'
                   }}>
@@ -374,11 +374,11 @@ const RewardIncome = () => {
           color: '#666',
           fontSize: '1rem'
         }}>
-          2025 - 2026 © Reward Income by <span style={{ color: '#8c4be7', fontWeight: 'bold' }}> Star Traders</span>
+          2025 - 2026 © Reward Income by <span style={{ color: '#8c4be7', fontWeight: 'bold' }}>Star Traders</span>
         </div>
       </div>
     </UniversalResponsiveLayout>
   );
 };
 
-export default RewardIncome;
+export default Reward;
