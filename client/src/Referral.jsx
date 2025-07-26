@@ -3,9 +3,8 @@ import axios from 'axios';
 import './Dashboard.css';
 
 const Referral = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-
-  const [overview, setOverview] = useState({
+  // Default data structure to prevent loading issues
+  const defaultData = {
     totalReferrals: 0,
     activeReferrals: 0,
     totalEarnings: 0,
@@ -16,148 +15,81 @@ const Referral = () => {
     ],
     referralList: [],
     incomeHistory: []
-  });
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  };
 
-  const fetchOverview = () => {
-    if (!user?._id) {
-      setLoading(false);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const [overview, setOverview] = useState(defaultData);
+  const [loading, setLoading] = useState(false); // Start with false
+  const [refreshing, setRefreshing] = useState(false);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+
+  const fetchOverview = async () => {
+    if (!user?._id || hasAttemptedFetch) {
       return;
     }
     
-    console.log('[Referral] Starting fetch for user:', user._id);
+    setHasAttemptedFetch(true);
     setLoading(true);
     
-    // Force stop loading after 5 seconds regardless of API response
-    const forceStopLoading = setTimeout(() => {
-      console.log('[Referral] Force stopping loading - showing empty data');
-      setOverview({
-        totalReferrals: 0,
-        activeReferrals: 0,
-        totalEarnings: 0,
-        levelSummary: [
-          { users: 0, investment: 0, earnings: 0 },
-          { users: 0, investment: 0, earnings: 0 },
-          { users: 0, investment: 0, earnings: 0 }
-        ],
-        referralList: [],
-        incomeHistory: []
-      });
-      setLoading(false);
-      setRefreshing(false);
-    }, 5000);
+    try {
+      console.log('[Referral] Starting API call for user:', user._id);
+      
+      const response = await axios.get(
+        `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`,
+        { 
+          timeout: 3000,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-    const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
-    
-    axios.get(url, {
-      timeout: 8000, // 8 second timeout for axios
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => {
-        clearTimeout(forceStopLoading);
-        console.log('[Referral] API success:', res.data);
-        
-        const data = res.data || {};
+      if (response.data?.success) {
+        console.log('[Referral] API success:', response.data);
+        const data = response.data;
         setOverview({
           totalReferrals: data.totalReferrals || 0,
-          activeReferrals: data.activeReferrals || 0,
-          totalEarnings: data.totalEarnings || 0,
-          levelSummary: data.levelSummary || [
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 }
-          ],
-          referralList: data.referralList || [],
-          incomeHistory: data.incomeHistory || []
+          activeReferrals: data.levelCounts || 0,
+          totalEarnings: data.levelIncome || 0,
+          levelSummary: Array.isArray(data.referralList) && data.referralList.length > 0 
+            ? data.referralList.slice(0, 3).map(ref => ({
+                users: 1,
+                investment: parseFloat(ref.investmentAmount) || 0,
+                earnings: parseFloat(ref.income) || 0
+              }))
+            : defaultData.levelSummary,
+          referralList: Array.isArray(data.referralList) ? data.referralList : [],
+          incomeHistory: Array.isArray(data.referralList) ? data.referralList : []
         });
-        setLoading(false);
-        setRefreshing(false);
-      })
-      .catch((err) => {
-        clearTimeout(forceStopLoading);
-        console.error('[Referral] API error:', err.message);
-        
-        // Always show the page with empty data instead of staying in loading
-        setOverview({
-          totalReferrals: 0,
-          activeReferrals: 0,
-          totalEarnings: 0,
-          levelSummary: [
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 }
-          ],
-          referralList: [],
-          incomeHistory: []
-        });
-        setLoading(false);
-        setRefreshing(false);
-      });
+      } else {
+        console.log('[Referral] API returned success:false, using default data');
+        setOverview(defaultData);
+      }
+    } catch (error) {
+      console.error('[Referral] API Error:', error.message);
+      setOverview(defaultData);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
-    // Emergency fallback - if still loading after 3 seconds, force show page
-    const emergencyFallback = setTimeout(() => {
-      if (loading) {
-        console.log('[Referral] Emergency fallback - force showing page');
-        setOverview({
-          totalReferrals: 0,
-          activeReferrals: 0,
-          totalEarnings: 0,
-          levelSummary: [
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 },
-            { users: 0, investment: 0, earnings: 0 }
-          ],
-          referralList: [],
-          incomeHistory: []
-        });
-        setLoading(false);
-      }
-    }, 3000);
+    // Only fetch once when component mounts
+    if (user?._id && !hasAttemptedFetch) {
+      fetchOverview();
+    }
+  }, [user?._id, hasAttemptedFetch]);
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setHasAttemptedFetch(false); // Allow refetch
     fetchOverview();
-    
-    return () => clearTimeout(emergencyFallback);
-  }, [user]);
-
-  if (loading) {
-    return (
-      <div className="referral-theme-container">
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '300px',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid #6a0dad',
-            borderTop: '3px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            marginBottom: '20px'
-          }}></div>
-          <p style={{ color: '#6a0dad', fontSize: '1.1rem' }}>Loading referral data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Ensure overview has default structure
-  const safeOverview = overview || {
-    totalReferrals: 0,
-    activeReferrals: 0,
-    totalEarnings: 0,
-    levelSummary: [],
-    referralList: [],
-    incomeHistory: []
   };
+
+  // Always show the page immediately - no loading screen
+  // Ensure overview has default structure
+  const safeOverview = overview || defaultData;
 
   return (
     <div className="referral-theme-container">
@@ -318,7 +250,7 @@ const Referral = () => {
           </h3>
           <button
             className="referral-refresh-btn"
-            onClick={() => { setRefreshing(true); fetchOverview(); }}
+            onClick={handleRefresh}
             disabled={refreshing}
           >
             {refreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
