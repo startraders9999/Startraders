@@ -10,23 +10,64 @@ const Referral = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchOverview = () => {
-    if (!user?._id) return;
+    if (!user?._id) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
     console.log('[Referral] Fetching:', url);
+    
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('[Referral] Request timeout, showing empty data');
+      setOverview({
+        totalReferrals: 0,
+        activeReferrals: 0,
+        totalEarnings: 0,
+        levelSummary: [],
+        referralList: [],
+        incomeHistory: []
+      });
+      setLoading(false);
+      setRefreshing(false);
+    }, 10000); // 10 second timeout
+
     axios.get(url, {
       headers: {
         // 'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     })
       .then(res => {
+        clearTimeout(timeoutId);
         console.log('[Referral] API response:', res.data);
-        setOverview(res.data);
+        
+        // Ensure we have valid data structure
+        const data = res.data || {};
+        setOverview({
+          totalReferrals: data.totalReferrals || 0,
+          activeReferrals: data.activeReferrals || 0,
+          totalEarnings: data.totalEarnings || 0,
+          levelSummary: data.levelSummary || [],
+          referralList: data.referralList || [],
+          incomeHistory: data.incomeHistory || []
+        });
         setLoading(false);
         setRefreshing(false);
       })
       .catch((err) => {
+        clearTimeout(timeoutId);
         console.error('[Referral] API error:', err);
+        
+        // Set empty data on error
+        setOverview({
+          totalReferrals: 0,
+          activeReferrals: 0,
+          totalEarnings: 0,
+          levelSummary: [],
+          referralList: [],
+          incomeHistory: []
+        });
         setLoading(false);
         setRefreshing(false);
       });
@@ -60,6 +101,16 @@ const Referral = () => {
       </div>
     );
   }
+
+  // Ensure overview has default structure
+  const safeOverview = overview || {
+    totalReferrals: 0,
+    activeReferrals: 0,
+    totalEarnings: 0,
+    levelSummary: [],
+    referralList: [],
+    incomeHistory: []
+  };
 
   return (
     <div className="referral-theme-container">
@@ -157,7 +208,7 @@ const Referral = () => {
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>💰</div>
           <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
-            ${overview?.totalEarnings?.toFixed(2) || '0.00'}
+            ${safeOverview?.totalEarnings?.toFixed(2) || '0.00'}
           </h3>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Earnings</p>
         </div>
@@ -172,7 +223,7 @@ const Referral = () => {
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>👥</div>
           <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
-            {overview?.totalReferrals || 0}
+            {safeOverview?.totalReferrals || 0}
           </h3>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Referrals</p>
         </div>
@@ -187,7 +238,7 @@ const Referral = () => {
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>✅</div>
           <h3 style={{ color: '#22c55e', fontSize: '1.8rem', margin: '5px 0' }}>
-            {overview?.activeReferrals || 0}
+            {safeOverview?.activeReferrals || 0}
           </h3>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Active Members</p>
         </div>
@@ -202,7 +253,7 @@ const Referral = () => {
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>❌</div>
           <h3 style={{ color: '#ef4444', fontSize: '1.8rem', margin: '5px 0' }}>
-            {(overview?.totalReferrals || 0) - (overview?.activeReferrals || 0)}
+            {(safeOverview?.totalReferrals || 0) - (safeOverview?.activeReferrals || 0)}
           </h3>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Inactive Members</p>
         </div>
@@ -247,13 +298,13 @@ const Referral = () => {
                     Level {lvl}
                   </td>
                   <td style={{ padding: '12px 15px', color: '#333' }}>
-                    {overview?.levelSummary?.[lvl-1]?.users ?? 0}
+                    {safeOverview?.levelSummary?.[lvl-1]?.users ?? 0}
                   </td>
                   <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
-                    ${overview?.levelSummary?.[lvl-1]?.investment?.toFixed(2) ?? '0.00'}
+                    ${safeOverview?.levelSummary?.[lvl-1]?.investment?.toFixed(2) ?? '0.00'}
                   </td>
                   <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
-                    ${overview?.levelSummary?.[lvl-1]?.earnings?.toFixed(2) ?? '0.00'}
+                    ${safeOverview?.levelSummary?.[lvl-1]?.earnings?.toFixed(2) ?? '0.00'}
                   </td>
                 </tr>
               ))}
@@ -263,13 +314,13 @@ const Referral = () => {
               }}>
                 <td style={{ padding: '15px', color: '#6a0dad', fontWeight: 'bold' }}>Total</td>
                 <td style={{ padding: '15px', color: '#333', fontWeight: 'bold' }}>
-                  {overview?.totalReferrals ?? 0}
+                  {safeOverview?.totalReferrals ?? 0}
                 </td>
                 <td style={{ padding: '15px', color: '#22c55e', fontWeight: 'bold' }}>
-                  ${[0,1,2].reduce((a,i) => a + (overview?.levelSummary?.[i]?.investment || 0), 0).toFixed(2)}
+                  ${[0,1,2].reduce((a,i) => a + (safeOverview?.levelSummary?.[i]?.investment || 0), 0).toFixed(2)}
                 </td>
                 <td style={{ padding: '15px', color: '#22c55e', fontWeight: 'bold' }}>
-                  ${[0,1,2].reduce((a,i) => a + (overview?.levelSummary?.[i]?.earnings || 0), 0).toFixed(2)}
+                  ${[0,1,2].reduce((a,i) => a + (safeOverview?.levelSummary?.[i]?.earnings || 0), 0).toFixed(2)}
                 </td>
               </tr>
             </tbody>
@@ -297,7 +348,7 @@ const Referral = () => {
           👥 Referral Members
         </h3>
 
-        {overview?.referralList && overview.referralList.length > 0 ? (
+        {safeOverview?.referralList && safeOverview.referralList.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
             <table style={{
               width: '100%',
@@ -318,7 +369,7 @@ const Referral = () => {
                 </tr>
               </thead>
               <tbody>
-                {overview.referralList.map((member, idx) => (
+                {safeOverview.referralList.map((member, idx) => (
                   <tr key={member._id || idx} style={{
                     borderBottom: '1px solid #e0d4f7',
                     backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
@@ -388,7 +439,7 @@ const Referral = () => {
           💰 Income History
         </h3>
 
-        {overview?.incomeHistory && overview.incomeHistory.length > 0 ? (
+        {safeOverview?.incomeHistory && safeOverview.incomeHistory.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
             <table style={{
               width: '100%',
@@ -408,7 +459,7 @@ const Referral = () => {
                 </tr>
               </thead>
               <tbody>
-                {overview.incomeHistory.map((income, idx) => (
+                {safeOverview.incomeHistory.map((income, idx) => (
                   <tr key={income._id || idx} style={{
                     borderBottom: '1px solid #e0d4f7',
                     backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
