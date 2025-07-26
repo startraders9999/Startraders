@@ -187,20 +187,26 @@ app.post('/api/user/withdrawal', async (req, res) => {
     if (!user || user.balance < amount) return res.status(400).json({ success: false, message: 'Insufficient balance' });
     // OTP verification for withdrawal
     const Otp = require('./models/otp');
+    console.log('Looking for OTP for email:', user.email, 'with purpose: withdrawal');
     const otpDoc = await Otp.findOne({ email: user.email, purpose: 'withdrawal' });
     if (!otpDoc) {
       console.log('OTP not found for email:', user.email);
       return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
     }
+    console.log('OTP found:', { email: user.email, expires: otpDoc.expiresAt, current: new Date() });
     if (otpDoc.expiresAt < new Date()) {
       await Otp.deleteOne({ _id: otpDoc._id });
       console.log('OTP expired for email:', user.email);
       return res.status(400).json({ success: false, message: 'OTP expired. Please request a new OTP.' });
     }
     const bcrypt = require('bcryptjs');
-    const match = await bcrypt.compare(otp.toString(), otpDoc.otpHash);
+    console.log('Comparing OTP:', otp, 'type:', typeof otp, 'with hash:', otpDoc.otpHash);
+    // Ensure OTP is string
+    const otpString = otp.toString();
+    const match = await bcrypt.compare(otpString, otpDoc.otpHash);
+    console.log('OTP comparison result:', match);
     if (!match) {
-      console.log('OTP mismatch for email:', user.email, 'provided:', otp);
+      console.log('OTP mismatch for email:', user.email, 'provided:', otpString);
       return res.status(400).json({ success: false, message: 'Invalid OTP. Please check and try again.' });
     }
     // Delete OTP after successful verification
