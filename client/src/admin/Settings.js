@@ -8,12 +8,27 @@ export default function Settings() {
     supportPhone: '',
     whatsappSupport: ''
   });
+  
+  const [rewardSettings, setRewardSettings] = useState([
+    { directBusiness: 10000, reward: 250 },
+    { directBusiness: 25000, reward: 500 },
+    { directBusiness: 50000, reward: 1000 },
+    { directBusiness: 100000, reward: 2000 },
+    { directBusiness: 200000, reward: 5000 },
+    { directBusiness: 500000, reward: 10000 },
+    { directBusiness: 1000000, reward: 25000 },
+    { directBusiness: 2000000, reward: 50000 }
+  ]);
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingRewards, setSavingRewards] = useState(false);
   const [message, setMessage] = useState('');
+  const [rewardMessage, setRewardMessage] = useState('');
 
   // Fetch current support settings
   useEffect(() => {
+    // Fetch support settings
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/support-settings`)
       .then(res => {
@@ -25,12 +40,24 @@ export default function Settings() {
             whatsappSupport: res.data.whatsappSupport || ''
           });
         }
-        setLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch support settings', err);
-        setLoading(false);
       });
+
+    // Fetch reward settings
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`)
+      .then(res => {
+        if (res.data.success && res.data.rewards) {
+          setRewardSettings(res.data.rewards);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch reward settings', err);
+      });
+      
+    setLoading(false);
   }, []);
 
   // Handle input changes
@@ -39,6 +66,27 @@ export default function Settings() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Handle reward changes
+  const handleRewardChange = (index, field, value) => {
+    const updatedRewards = [...rewardSettings];
+    updatedRewards[index] = {
+      ...updatedRewards[index],
+      [field]: parseFloat(value) || 0
+    };
+    setRewardSettings(updatedRewards);
+  };
+
+  // Add new reward tier
+  const addRewardTier = () => {
+    setRewardSettings([...rewardSettings, { directBusiness: 0, reward: 0 }]);
+  };
+
+  // Remove reward tier
+  const removeRewardTier = (index) => {
+    const updatedRewards = rewardSettings.filter((_, i) => i !== index);
+    setRewardSettings(updatedRewards);
   };
 
   // Save support settings
@@ -63,6 +111,34 @@ export default function Settings() {
     }
     
     setSaving(false);
+  };
+
+  // Save reward settings
+  const handleSaveRewards = async () => {
+    setSavingRewards(true);
+    setRewardMessage('');
+    
+    try {
+      const sortedRewards = rewardSettings
+        .filter(r => r.directBusiness > 0 && r.reward > 0)
+        .sort((a, b) => a.directBusiness - b.directBusiness);
+        
+      const response = await axios.post(
+        `https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`,
+        { rewards: sortedRewards }
+      );
+      
+      if (response.data.success) {
+        setRewardMessage('Reward settings updated successfully!');
+        setTimeout(() => setRewardMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Failed to update reward settings', error);
+      setRewardMessage('Failed to update reward settings. Please try again.');
+      setTimeout(() => setRewardMessage(''), 3000);
+    }
+    
+    setSavingRewards(false);
   };
 
   if (loading) {
@@ -184,6 +260,132 @@ export default function Settings() {
             color: message.includes('successfully') ? '#155724' : '#721c24'
           }}>
             {message}
+          </div>
+        )}
+      </div>
+
+      {/* Reward Configuration Section */}
+      <div style={{ background: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h3>💰 Reward Income Configuration</h3>
+        <p style={{ color: '#666', marginBottom: '20px' }}>
+          Configure reward tiers based on direct business volume. Users will receive rewards when they reach these targets.
+        </p>
+        
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr auto', 
+            gap: '10px', 
+            alignItems: 'center',
+            marginBottom: '10px',
+            fontWeight: 'bold',
+            color: '#333',
+            padding: '10px',
+            background: '#e9ecef',
+            borderRadius: '4px'
+          }}>
+            <div>Direct Business ($)</div>
+            <div>Reward ($)</div>
+            <div>Action</div>
+          </div>
+          
+          {rewardSettings.map((reward, index) => (
+            <div key={index} style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr auto', 
+              gap: '10px', 
+              alignItems: 'center',
+              marginBottom: '10px',
+              padding: '10px',
+              background: '#fff',
+              border: '1px solid #ddd',
+              borderRadius: '4px'
+            }}>
+              <input
+                type="number"
+                value={reward.directBusiness}
+                onChange={(e) => handleRewardChange(index, 'directBusiness', e.target.value)}
+                placeholder="Direct Business Amount"
+                style={{
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+              <input
+                type="number"
+                value={reward.reward}
+                onChange={(e) => handleRewardChange(index, 'reward', e.target.value)}
+                placeholder="Reward Amount"
+                style={{
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+              <button
+                onClick={() => removeRewardTier(index)}
+                style={{
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+              >
+                🗑️ Remove
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+          <button
+            onClick={addRewardTier}
+            style={{
+              background: '#28a745',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            ➕ Add New Reward Tier
+          </button>
+          
+          <button
+            onClick={handleSaveRewards}
+            disabled={savingRewards}
+            style={{
+              background: savingRewards ? '#cccccc' : '#8c4be7',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: savingRewards ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {savingRewards ? 'Saving...' : '💾 Save Reward Settings'}
+          </button>
+        </div>
+
+        {rewardMessage && (
+          <div style={{
+            marginTop: '15px',
+            padding: '10px',
+            background: rewardMessage.includes('successfully') ? '#d4edda' : '#f8d7da',
+            border: `1px solid ${rewardMessage.includes('successfully') ? '#c3e6cb' : '#f5c6cb'}`,
+            borderRadius: '4px',
+            color: rewardMessage.includes('successfully') ? '#155724' : '#721c24'
+          }}>
+            {rewardMessage}
           </div>
         )}
       </div>

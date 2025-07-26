@@ -341,6 +341,57 @@ app.post('/api/admin/support-settings', async (req, res) => {
   }
 });
 
+// Reward Settings APIs
+const RewardSettings = require('./models/rewardSettings');
+
+// Get reward settings
+app.get('/api/admin/reward-settings', async (req, res) => {
+  try {
+    const settings = await RewardSettings.getSettings();
+    res.json({ 
+      success: true, 
+      rewards: settings.rewards || []
+    });
+  } catch (err) {
+    console.error('Error fetching reward settings:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch reward settings' });
+  }
+});
+
+// Update reward settings
+app.post('/api/admin/reward-settings', async (req, res) => {
+  try {
+    const { rewards } = req.body;
+    
+    if (!Array.isArray(rewards)) {
+      return res.status(400).json({ success: false, message: 'Rewards must be an array' });
+    }
+    
+    // Validate reward data
+    for (let reward of rewards) {
+      if (!reward.directBusiness || !reward.reward || reward.directBusiness <= 0 || reward.reward <= 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid reward data. Direct business and reward must be positive numbers.' 
+        });
+      }
+    }
+    
+    // Sort rewards by directBusiness amount
+    const sortedRewards = rewards.sort((a, b) => a.directBusiness - b.directBusiness);
+    
+    const settings = await RewardSettings.updateSettings(sortedRewards);
+    res.json({ 
+      success: true, 
+      message: 'Reward settings updated successfully',
+      rewards: settings.rewards 
+    });
+  } catch (err) {
+    console.error('Error updating reward settings:', err);
+    res.status(500).json({ success: false, message: 'Failed to update reward settings' });
+  }
+});
+
 // Update Trading Income Settings
 app.post('/api/admin/trading-income-settings', async (req, res) => {
   try {
