@@ -168,7 +168,7 @@ const Dashboard = () => {
             <div className="grid-row">
               <div className="grid-box clickable" onClick={() => navigate('/referral-on-trading')}>
                 <FaExchangeAlt style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
-                <span>TRADING INCOME ON REFERRAL INCOME</span><span>$0</span>
+                <span>REFERRAL INCOME ON TRADING INCOME</span><span>$0</span>
               </div>
               <div className="grid-box clickable" onClick={() => navigate('/reward-income')}>
                 <FaGift style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />

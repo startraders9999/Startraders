@@ -47,14 +47,21 @@ export default function Settings() {
 
     // Fetch reward settings
     axios
-      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`)
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
       .then(res => {
+        console.log('Fetched reward settings:', res.data);
         if (res.data.success && res.data.rewards) {
           setRewardSettings(res.data.rewards);
         }
       })
       .catch(err => {
         console.error('Failed to fetch reward settings', err);
+        console.error('Error response:', err.response?.data);
       });
       
     setLoading(false);
@@ -122,19 +129,39 @@ export default function Settings() {
       const sortedRewards = rewardSettings
         .filter(r => r.directBusiness > 0 && r.reward > 0)
         .sort((a, b) => a.directBusiness - b.directBusiness);
+      
+      console.log('Sending reward data:', sortedRewards);
         
       const response = await axios.post(
         `https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`,
-        { rewards: sortedRewards }
+        { rewards: sortedRewards },
+        {
+          timeout: 30000, // 30 second timeout
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
       
+      console.log('Server response:', response.data);
+      
+      console.log('Server response:', response.data);
+      
       if (response.data.success) {
+        // Update the local state with the server response
+        if (response.data.rewards) {
+          setRewardSettings(response.data.rewards);
+        }
         setRewardMessage('Reward settings updated successfully!');
+        setTimeout(() => setRewardMessage(''), 3000);
+      } else {
+        setRewardMessage(response.data.message || 'Failed to update reward settings');
         setTimeout(() => setRewardMessage(''), 3000);
       }
     } catch (error) {
       console.error('Failed to update reward settings', error);
-      setRewardMessage('Failed to update reward settings. Please try again.');
+      console.error('Error response:', error.response?.data);
+      setRewardMessage(`Failed to update reward settings: ${error.response?.data?.message || error.message}`);
       setTimeout(() => setRewardMessage(''), 3000);
     }
     
