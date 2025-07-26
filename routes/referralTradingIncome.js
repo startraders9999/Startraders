@@ -1,7 +1,50 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const ReferralTradingIncome = require('../models/referralTradingIncome');
+const ReferralTradingIncome = require('../// Manual trigger for distributing referral trading income
+router.post('/trigger', async (req, res) => {
+  try {
+    const { userId, tradingAmount } = req.body;
+    
+    if (!userId || !tradingAmount) {
+      return res.json({ success: false, message: 'Missing required fields' });
+    }
+
+    await distributeReferralTradingIncome(userId, tradingAmount);
+    
+    res.json({ success: true, message: 'Referral trading income distributed successfully' });
+  } catch (error) {
+    console.error('Error in manual trigger:', error);
+    res.json({ success: false, message: 'Server error' });
+  }
+});
+
+// Test route to create sample trading income distribution
+router.post('/create-sample/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const sampleTradingAmount = 1000; // ₹1000 sample trading income
+    
+    console.log(`Creating sample trading income for user: ${userId}`);
+    
+    // First update unlocked levels
+    await updateUnlockedLevels(userId);
+    
+    // Then distribute income
+    await distributeReferralTradingIncome(userId, sampleTradingAmount);
+    
+    res.json({ 
+      success: true, 
+      message: `Sample trading income of ₹${sampleTradingAmount} distributed successfully!`,
+      tradingAmount: sampleTradingAmount
+    });
+  } catch (error) {
+    console.error('Error creating sample data:', error);
+    res.json({ success: false, message: 'Error creating sample data' });
+  }
+});
+
+// Export the distribution function for use in other modulesingIncome');
 
 // Level structure with correct percentages
 const LEVEL_PERCENTAGES = {
