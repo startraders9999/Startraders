@@ -36,75 +36,59 @@ const Referral = () => {
     fetchOverview();
   }, [user]);
 
-  const NoReferralUI = () => (
-    <></>
-  );
-
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: 'white'
-      }}>
-        <div style={{ textAlign: 'center' }}>
+      <div className="referral-theme-container">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '300px',
+          flexDirection: 'column'
+        }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '3px solid #8b5cf6',
+            width: '40px',
+            height: '40px',
+            border: '3px solid #6a0dad',
             borderTop: '3px solid transparent',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
+            marginBottom: '20px'
           }}></div>
-          <p>Loading referral data...</p>
+          <p style={{ color: '#6a0dad', fontSize: '1.1rem' }}>Loading referral data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      padding: '20px',
-      color: 'white'
-    }}>
+    <div className="referral-theme-container">
       {/* Header */}
-      <div style={{
+      <div className="referral-title">Direct Referral Income</div>
+      <p style={{ 
+        color: '#666', 
+        fontSize: '1.1rem', 
+        marginBottom: '30px', 
         textAlign: 'center',
-        marginBottom: '30px'
+        maxWidth: '600px'
       }}>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: 'bold',
-          background: 'linear-gradient(45deg, #8b5cf6, #ec4899)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          marginBottom: '10px'
-        }}>
-          Direct Referral Income
-        </h1>
-        <p style={{ color: '#a1a1aa', fontSize: '1.1rem' }}>
-          Manage your referral network and track earnings
-        </p>
-      </div>
+        Manage your referral network and track your earnings from direct referrals
+      </p>
 
       {/* Referral Link Section */}
       <div style={{
-        background: 'rgba(139, 92, 246, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '15px',
+        background: '#fff',
+        borderRadius: '16px',
+        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
         padding: '25px',
-        marginBottom: '30px'
+        marginBottom: '30px',
+        maxWidth: '700px',
+        width: '100%',
+        border: '2px solid #e0d4f7'
       }}>
         <h3 style={{
-          color: '#8b5cf6',
-          fontSize: '1.2rem',
+          color: '#6a0dad',
+          fontSize: '1.3rem',
           marginBottom: '15px',
           fontWeight: '600'
         }}>
@@ -124,10 +108,10 @@ const Referral = () => {
               flex: '1',
               minWidth: '300px',
               padding: '12px 15px',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              border: '1px solid rgba(139, 92, 246, 0.5)',
+              backgroundColor: '#f8f6ff',
+              border: '2px solid #e0d4f7',
               borderRadius: '8px',
-              color: 'white',
+              color: '#333',
               fontSize: '14px'
             }}
           />
@@ -138,16 +122,16 @@ const Referral = () => {
             }}
             style={{
               padding: '12px 20px',
-              background: 'linear-gradient(45deg, #8b5cf6, #ec4899)',
+              background: '#6a0dad',
               border: 'none',
               borderRadius: '8px',
               color: 'white',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'transform 0.2s'
+              transition: 'all 0.3s'
             }}
-            onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+            onMouseEnter={(e) => e.target.style.background = '#5a0ca0'}
+            onMouseLeave={(e) => e.target.style.background = '#6a0dad'}
           >
             📋 Copy Link
           </button>
@@ -157,136 +141,112 @@ const Referral = () => {
       {/* Statistics Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '20px',
-        marginBottom: '30px'
+        marginBottom: '30px',
+        maxWidth: '800px',
+        width: '100%'
       }}>
         <div style={{
-          background: 'rgba(34, 197, 94, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(34, 197, 94, 0.3)',
-          borderRadius: '15px',
+          background: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
           padding: '25px',
-          textAlign: 'center'
+          textAlign: 'center',
+          border: '2px solid #e0d4f7'
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>💰</div>
-          <h3 style={{ color: '#22c55e', fontSize: '1.8rem', margin: '5px 0' }}>
+          <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
             ${overview?.totalEarnings?.toFixed(2) || '0.00'}
           </h3>
-          <p style={{ color: '#a1a1aa' }}>Total Earnings</p>
+          <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Earnings</p>
         </div>
 
         <div style={{
-          background: 'rgba(139, 92, 246, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          borderRadius: '15px',
+          background: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
           padding: '25px',
-          textAlign: 'center'
+          textAlign: 'center',
+          border: '2px solid #e0d4f7'
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>👥</div>
-          <h3 style={{ color: '#8b5cf6', fontSize: '1.8rem', margin: '5px 0' }}>
+          <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
             {overview?.totalReferrals || 0}
           </h3>
-          <p style={{ color: '#a1a1aa' }}>Total Referrals</p>
+          <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Referrals</p>
         </div>
 
         <div style={{
-          background: 'rgba(34, 197, 94, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(34, 197, 94, 0.3)',
-          borderRadius: '15px',
+          background: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
           padding: '25px',
-          textAlign: 'center'
+          textAlign: 'center',
+          border: '2px solid rgba(34, 197, 94, 0.3)'
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>✅</div>
           <h3 style={{ color: '#22c55e', fontSize: '1.8rem', margin: '5px 0' }}>
             {overview?.activeReferrals || 0}
           </h3>
-          <p style={{ color: '#a1a1aa' }}>Active Members</p>
+          <p style={{ color: '#666', fontSize: '0.9rem' }}>Active Members</p>
         </div>
 
         <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '15px',
+          background: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
           padding: '25px',
-          textAlign: 'center'
+          textAlign: 'center',
+          border: '2px solid rgba(239, 68, 68, 0.3)'
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '10px' }}>❌</div>
           <h3 style={{ color: '#ef4444', fontSize: '1.8rem', margin: '5px 0' }}>
             {(overview?.totalReferrals || 0) - (overview?.activeReferrals || 0)}
           </h3>
-          <p style={{ color: '#a1a1aa' }}>Inactive Members</p>
+          <p style={{ color: '#666', fontSize: '0.9rem' }}>Inactive Members</p>
         </div>
       </div>
       {/* Level Summary Table */}
-      <div style={{
-        background: 'rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '15px',
-        padding: '25px',
-        marginBottom: '30px'
-      }}>
+      <div className="referral-summary-card" style={{ maxWidth: '800px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '20px'
         }}>
-          <h3 style={{
-            color: '#8b5cf6',
-            fontSize: '1.4rem',
-            fontWeight: '600'
-          }}>
+          <h3 className="referral-summary-heading">
             📊 Level Summary
           </h3>
           <button
+            className="referral-refresh-btn"
             onClick={() => { setRefreshing(true); fetchOverview(); }}
             disabled={refreshing}
-            style={{
-              padding: '8px 16px',
-              background: refreshing ? 'rgba(139, 92, 246, 0.5)' : 'linear-gradient(45deg, #8b5cf6, #ec4899)',
-              border: 'none',
-              borderRadius: '8px',
-              color: 'white',
-              fontWeight: '600',
-              cursor: refreshing ? 'not-allowed' : 'pointer'
-            }}
           >
             {refreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
           </button>
         </div>
 
         <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: '10px',
-            overflow: 'hidden'
-          }}>
+          <table className="referral-summary-table">
             <thead>
-              <tr style={{
-                background: 'linear-gradient(45deg, #8b5cf6, #ec4899)'
-              }}>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Level</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Members</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Investment</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Earned Income</th>
+              <tr>
+                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Level</th>
+                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Members</th>
+                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Investment</th>
+                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Earned Income</th>
               </tr>
             </thead>
             <tbody>
               {[1,2,3].map(lvl => (
                 <tr key={lvl} style={{
-                  borderBottom: '1px solid rgba(139, 92, 246, 0.2)'
+                  borderBottom: '1px solid #e0d4f7',
+                  backgroundColor: lvl % 2 === 0 ? '#f8f6ff' : '#fff'
                 }}>
-                  <td style={{ padding: '12px 15px', color: '#8b5cf6', fontWeight: '600' }}>
+                  <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
                     Level {lvl}
                   </td>
-                  <td style={{ padding: '12px 15px', color: 'white' }}>
+                  <td style={{ padding: '12px 15px', color: '#333' }}>
                     {overview?.levelSummary?.[lvl-1]?.users ?? 0}
                   </td>
                   <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
@@ -298,11 +258,11 @@ const Referral = () => {
                 </tr>
               ))}
               <tr style={{
-                background: 'rgba(139, 92, 246, 0.2)',
+                background: '#e0d4f7',
                 fontWeight: 'bold'
               }}>
-                <td style={{ padding: '15px', color: '#8b5cf6', fontWeight: 'bold' }}>Total</td>
-                <td style={{ padding: '15px', color: 'white', fontWeight: 'bold' }}>
+                <td style={{ padding: '15px', color: '#6a0dad', fontWeight: 'bold' }}>Total</td>
+                <td style={{ padding: '15px', color: '#333', fontWeight: 'bold' }}>
                   {overview?.totalReferrals ?? 0}
                 </td>
                 <td style={{ padding: '15px', color: '#22c55e', fontWeight: 'bold' }}>
@@ -319,16 +279,18 @@ const Referral = () => {
 
       {/* Active Referral Members */}
       <div style={{
-        background: 'rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '15px',
+        background: '#fff',
+        borderRadius: '16px',
+        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
         padding: '25px',
-        marginBottom: '30px'
+        marginBottom: '30px',
+        maxWidth: '900px',
+        width: '100%',
+        border: '2px solid #e0d4f7'
       }}>
         <h3 style={{
-          color: '#8b5cf6',
-          fontSize: '1.4rem',
+          color: '#6a0dad',
+          fontSize: '1.3rem',
           fontWeight: '600',
           marginBottom: '20px'
         }}>
@@ -340,14 +302,12 @@ const Referral = () => {
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
-              backgroundColor: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '10px',
-              overflow: 'hidden',
               minWidth: '700px'
             }}>
               <thead>
                 <tr style={{
-                  background: 'linear-gradient(45deg, #8b5cf6, #ec4899)'
+                  background: '#6a0dad',
+                  color: 'white'
                 }}>
                   <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Name</th>
                   <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Email</th>
@@ -360,15 +320,16 @@ const Referral = () => {
               <tbody>
                 {overview.referralList.map((member, idx) => (
                   <tr key={member._id || idx} style={{
-                    borderBottom: '1px solid rgba(139, 92, 246, 0.2)'
+                    borderBottom: '1px solid #e0d4f7',
+                    backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
                   }}>
-                    <td style={{ padding: '12px 15px', color: 'white' }}>
+                    <td style={{ padding: '12px 15px', color: '#333', fontWeight: '500' }}>
                       {member?.name || 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 15px', color: '#a1a1aa', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
                       {member?.email || 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 15px', color: '#8b5cf6', fontWeight: '600' }}>
+                    <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
                       Level {member?.level ?? 1}
                     </td>
                     <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
@@ -380,14 +341,14 @@ const Referral = () => {
                         borderRadius: '20px',
                         fontSize: '0.8rem',
                         fontWeight: '600',
-                        backgroundColor: (member?.depositedAmount > 0) ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                        backgroundColor: (member?.depositedAmount > 0) ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                         color: (member?.depositedAmount > 0) ? '#22c55e' : '#ef4444',
                         border: `1px solid ${(member?.depositedAmount > 0) ? '#22c55e' : '#ef4444'}`
                       }}>
                         {(member?.depositedAmount > 0) ? '✅ Active' : '❌ Inactive'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 15px', color: '#a1a1aa', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
                       {member?.joined ? new Date(member.joined).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
@@ -399,25 +360,28 @@ const Referral = () => {
           <div style={{
             textAlign: 'center',
             padding: '40px',
-            color: '#a1a1aa'
+            color: '#666'
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '15px' }}>👥</div>
             <p>No referral members yet</p>
+            <p style={{ fontSize: '0.9rem', color: '#999' }}>Share your referral link to start earning!</p>
           </div>
         )}
       </div>
 
       {/* Income History */}
       <div style={{
-        background: 'rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '15px',
-        padding: '25px'
+        background: '#fff',
+        borderRadius: '16px',
+        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
+        padding: '25px',
+        maxWidth: '900px',
+        width: '100%',
+        border: '2px solid #e0d4f7'
       }}>
         <h3 style={{
-          color: '#8b5cf6',
-          fontSize: '1.4rem',
+          color: '#6a0dad',
+          fontSize: '1.3rem',
           fontWeight: '600',
           marginBottom: '20px'
         }}>
@@ -429,14 +393,12 @@ const Referral = () => {
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
-              backgroundColor: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '10px',
-              overflow: 'hidden',
               minWidth: '800px'
             }}>
               <thead>
                 <tr style={{
-                  background: 'linear-gradient(45deg, #8b5cf6, #ec4899)'
+                  background: '#6a0dad',
+                  color: 'white'
                 }}>
                   <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Date</th>
                   <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Level</th>
@@ -448,25 +410,26 @@ const Referral = () => {
               <tbody>
                 {overview.incomeHistory.map((income, idx) => (
                   <tr key={income._id || idx} style={{
-                    borderBottom: '1px solid rgba(139, 92, 246, 0.2)'
+                    borderBottom: '1px solid #e0d4f7',
+                    backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
                   }}>
-                    <td style={{ padding: '12px 15px', color: '#a1a1aa', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
                       {income?.date ? new Date(income.date).toLocaleString() : 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 15px', color: '#8b5cf6', fontWeight: '600' }}>
+                    <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
                       Level {income?.level ?? 1}
                     </td>
                     <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600', fontSize: '1.1rem' }}>
                       +${income?.amount?.toFixed(2) ?? '0.00'}
                     </td>
-                    <td style={{ padding: '12px 15px', color: 'white' }}>
+                    <td style={{ padding: '12px 15px', color: '#333' }}>
                       {income?.sourceUser ? `${income.sourceUser.name}` : 'N/A'}
                       <br />
-                      <span style={{ color: '#a1a1aa', fontSize: '0.8rem' }}>
+                      <span style={{ color: '#666', fontSize: '0.8rem' }}>
                         {income?.sourceUser?.email || ''}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 15px', color: '#a1a1aa', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
                       {income?.description || 'Referral Income'}
                     </td>
                   </tr>
@@ -478,10 +441,11 @@ const Referral = () => {
           <div style={{
             textAlign: 'center',
             padding: '40px',
-            color: '#a1a1aa'
+            color: '#666'
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '15px' }}>💰</div>
             <p>No income history yet</p>
+            <p style={{ fontSize: '0.9rem', color: '#999' }}>Income will appear here when your referrals make deposits</p>
           </div>
         )}
       </div>
