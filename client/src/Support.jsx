@@ -1,7 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import axios from 'axios';
 
 const Support = () => {
+  const [supportSettings, setSupportSettings] = useState({
+    telegramSupportLink: 'https://t.me/startraderssupport',
+    supportEmail: 'support@startraders.com',
+    supportPhone: '+1234567890',
+    whatsappSupport: ''
+  });
+
+  useEffect(() => {
+    // Fetch support settings from API
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/support-settings`)
+      .then(res => {
+        if (res.data.success) {
+          setSupportSettings({
+            telegramSupportLink: res.data.telegramSupportLink || 'https://t.me/startraderssupport',
+            supportEmail: res.data.supportEmail || 'support@startraders.com',
+            supportPhone: res.data.supportPhone || '+1234567890',
+            whatsappSupport: res.data.whatsappSupport || ''
+          });
+        }
+      })
+      .catch(() => console.log('Failed to fetch support settings'));
+  }, []);
+
   return (
     <div className="dashboard-container">
       <div className="welcome-section">
@@ -14,9 +39,11 @@ const Support = () => {
           <div className="balance-card support-card">
             <div className="card-icon">💬</div>
             <div className="card-content">
-              <h3>Live Chat</h3>
+              <h3>Telegram Support</h3>
               <p>Get instant help from our support team</p>
-              <button className="support-btn">Start Chat</button>
+              <a href={supportSettings.telegramSupportLink} target="_blank" rel="noopener noreferrer" className="support-btn">
+                Open Telegram
+              </a>
             </div>
           </div>
 
@@ -25,7 +52,7 @@ const Support = () => {
             <div className="card-content">
               <h3>Email Support</h3>
               <p>Send us your queries via email</p>
-              <a href="mailto:support@startraders.com" className="support-btn">
+              <a href={`mailto:${supportSettings.supportEmail}`} className="support-btn">
                 Send Email
               </a>
             </div>
@@ -36,11 +63,24 @@ const Support = () => {
             <div className="card-content">
               <h3>Phone Support</h3>
               <p>Call us for immediate assistance</p>
-              <a href="tel:+1234567890" className="support-btn">
+              <a href={`tel:${supportSettings.supportPhone}`} className="support-btn">
                 Call Now
               </a>
             </div>
           </div>
+
+          {supportSettings.whatsappSupport && (
+            <div className="balance-card support-card">
+              <div className="card-icon">📱</div>
+              <div className="card-content">
+                <h3>WhatsApp Support</h3>
+                <p>Chat with us on WhatsApp</p>
+                <a href={supportSettings.whatsappSupport} target="_blank" rel="noopener noreferrer" className="support-btn">
+                  Open WhatsApp
+                </a>
+              </div>
+            </div>
+          )}
 
           <div className="balance-card support-card">
             <div className="card-icon">❓</div>

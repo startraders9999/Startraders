@@ -28,6 +28,12 @@ const Dashboard = () => {
   // Wallet balances
   const [availableFunds, setAvailableFunds] = useState(0);
   const [referralIncome, setReferralIncome] = useState(0);
+  const [supportSettings, setSupportSettings] = useState({
+    telegramSupportLink: 'https://t.me/startraderssupport',
+    supportEmail: 'support@startraders.com',
+    supportPhone: '+1234567890',
+    whatsappSupport: ''
+  });
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
@@ -40,6 +46,7 @@ const Dashboard = () => {
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user._id) return;
+    
     // Available Funds (get user balance from admin API)
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
@@ -51,6 +58,7 @@ const Dashboard = () => {
         }
       })
       .catch(() => setAvailableFunds(0));
+      
     // Referral Income
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-income/${user._id}`)
@@ -64,6 +72,21 @@ const Dashboard = () => {
         }
       })
       .catch(() => setReferralIncome(0));
+
+    // Support Settings
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/support-settings`)
+      .then(res => {
+        if (res.data.success) {
+          setSupportSettings({
+            telegramSupportLink: res.data.telegramSupportLink || 'https://t.me/startraderssupport',
+            supportEmail: res.data.supportEmail || 'support@startraders.com',
+            supportPhone: res.data.supportPhone || '+1234567890',
+            whatsappSupport: res.data.whatsappSupport || ''
+          });
+        }
+      })
+      .catch(() => console.log('Failed to fetch support settings'));
   }, []);
 
   // Get user and referralCode safely
@@ -122,7 +145,7 @@ const Dashboard = () => {
             </button>
           </div>
           <div className="refer-btn-row">
-            <a href="https://t.me/startraderssupport" target="_blank" rel="noopener noreferrer">
+            <a href={supportSettings.telegramSupportLink} target="_blank" rel="noopener noreferrer">
               <button className="refer-btn" style={{background:'#8c4be7',color:'#fff'}}>Telegram Support</button>
             </a>
           </div>

@@ -297,6 +297,50 @@ app.get('/api/user/deposit-settings', async (req, res) => {
   }
 });
 
+// User: Get support settings (telegram, email, phone)
+app.get('/api/user/support-settings', async (req, res) => {
+  try {
+    let settings = await Settings.findOne();
+    if (!settings) {
+      return res.json({ 
+        success: true, 
+        telegramSupportLink: 'https://t.me/startraderssupport',
+        supportEmail: 'support@startraders.com',
+        supportPhone: '+1234567890',
+        whatsappSupport: ''
+      });
+    }
+    res.json({
+      success: true,
+      telegramSupportLink: settings.telegramSupportLink || 'https://t.me/startraderssupport',
+      supportEmail: settings.supportEmail || 'support@startraders.com',
+      supportPhone: settings.supportPhone || '+1234567890',
+      whatsappSupport: settings.whatsappSupport || ''
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch support settings' });
+  }
+});
+
+// Admin: Update support settings
+app.post('/api/admin/support-settings', async (req, res) => {
+  try {
+    const { telegramSupportLink, supportEmail, supportPhone, whatsappSupport } = req.body;
+    let settings = await Settings.findOne();
+    if (!settings) settings = new Settings({});
+    
+    if (telegramSupportLink !== undefined) settings.telegramSupportLink = telegramSupportLink;
+    if (supportEmail !== undefined) settings.supportEmail = supportEmail;
+    if (supportPhone !== undefined) settings.supportPhone = supportPhone;
+    if (whatsappSupport !== undefined) settings.whatsappSupport = whatsappSupport;
+    
+    await settings.save();
+    res.json({ success: true, settings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to update support settings' });
+  }
+});
+
 // Update Trading Income Settings
 app.post('/api/admin/trading-income-settings', async (req, res) => {
   try {
