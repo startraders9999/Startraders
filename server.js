@@ -1652,8 +1652,6 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
     
     // ✅ UTC-safe expiry check
     if (new Date() > new Date(otpDoc.expiresAt)) {
-    // ✅ UTC-safe expiry check
-    if (new Date() > new Date(otpDoc.expiresAt)) {
       await Otp.deleteOne({ _id: otpDoc._id });
       console.log('OTP expired and deleted for:', email);
       return res.json({ success: false, message: 'OTP expired' });
