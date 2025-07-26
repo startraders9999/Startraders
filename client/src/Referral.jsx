@@ -5,7 +5,18 @@ import './Dashboard.css';
 const Referral = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const [overview, setOverview] = useState(null);
+  const [overview, setOverview] = useState({
+    totalReferrals: 0,
+    activeReferrals: 0,
+    totalEarnings: 0,
+    levelSummary: [
+      { users: 0, investment: 0, earnings: 0 },
+      { users: 0, investment: 0, earnings: 0 },
+      { users: 0, investment: 0, earnings: 0 }
+    ],
+    referralList: [],
+    incomeHistory: []
+  });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -14,41 +25,51 @@ const Referral = () => {
       setLoading(false);
       return;
     }
-    setLoading(true);
-    const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
-    console.log('[Referral] Fetching:', url);
     
-    // Set a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.log('[Referral] Request timeout, showing empty data');
+    console.log('[Referral] Starting fetch for user:', user._id);
+    setLoading(true);
+    
+    // Force stop loading after 5 seconds regardless of API response
+    const forceStopLoading = setTimeout(() => {
+      console.log('[Referral] Force stopping loading - showing empty data');
       setOverview({
         totalReferrals: 0,
         activeReferrals: 0,
         totalEarnings: 0,
-        levelSummary: [],
+        levelSummary: [
+          { users: 0, investment: 0, earnings: 0 },
+          { users: 0, investment: 0, earnings: 0 },
+          { users: 0, investment: 0, earnings: 0 }
+        ],
         referralList: [],
         incomeHistory: []
       });
       setLoading(false);
       setRefreshing(false);
-    }, 10000); // 10 second timeout
+    }, 5000);
 
+    const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
+    
     axios.get(url, {
+      timeout: 8000, // 8 second timeout for axios
       headers: {
-        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       }
     })
       .then(res => {
-        clearTimeout(timeoutId);
-        console.log('[Referral] API response:', res.data);
+        clearTimeout(forceStopLoading);
+        console.log('[Referral] API success:', res.data);
         
-        // Ensure we have valid data structure
         const data = res.data || {};
         setOverview({
           totalReferrals: data.totalReferrals || 0,
           activeReferrals: data.activeReferrals || 0,
           totalEarnings: data.totalEarnings || 0,
-          levelSummary: data.levelSummary || [],
+          levelSummary: data.levelSummary || [
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 }
+          ],
           referralList: data.referralList || [],
           incomeHistory: data.incomeHistory || []
         });
@@ -56,15 +77,19 @@ const Referral = () => {
         setRefreshing(false);
       })
       .catch((err) => {
-        clearTimeout(timeoutId);
-        console.error('[Referral] API error:', err);
+        clearTimeout(forceStopLoading);
+        console.error('[Referral] API error:', err.message);
         
-        // Set empty data on error
+        // Always show the page with empty data instead of staying in loading
         setOverview({
           totalReferrals: 0,
           activeReferrals: 0,
           totalEarnings: 0,
-          levelSummary: [],
+          levelSummary: [
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 }
+          ],
           referralList: [],
           incomeHistory: []
         });
@@ -74,7 +99,29 @@ const Referral = () => {
   };
 
   useEffect(() => {
+    // Emergency fallback - if still loading after 3 seconds, force show page
+    const emergencyFallback = setTimeout(() => {
+      if (loading) {
+        console.log('[Referral] Emergency fallback - force showing page');
+        setOverview({
+          totalReferrals: 0,
+          activeReferrals: 0,
+          totalEarnings: 0,
+          levelSummary: [
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 },
+            { users: 0, investment: 0, earnings: 0 }
+          ],
+          referralList: [],
+          incomeHistory: []
+        });
+        setLoading(false);
+      }
+    }, 3000);
+
     fetchOverview();
+    
+    return () => clearTimeout(emergencyFallback);
   }, [user]);
 
   if (loading) {
