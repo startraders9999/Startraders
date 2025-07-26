@@ -96,6 +96,34 @@ export default function Settings() {
     setRewardSettings(updatedRewards);
   };
 
+  // Reload reward settings from server
+  const reloadRewardSettings = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://startraders-fullstack-9ayr.onrender.com/api/admin/reward-settings`,
+        {
+          timeout: 30000,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('Reloaded reward settings:', response.data);
+      if (response.data.success && response.data.rewards) {
+        setRewardSettings(response.data.rewards);
+        setRewardMessage('Reward settings reloaded successfully!');
+        setTimeout(() => setRewardMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Failed to reload reward settings', error);
+      setRewardMessage('Failed to reload reward settings');
+      setTimeout(() => setRewardMessage(''), 3000);
+    }
+    setLoading(false);
+  };
+
   // Save support settings
   const handleSave = async () => {
     setSaving(true);
@@ -384,6 +412,22 @@ export default function Settings() {
             }}
           >
             ➕ Add New Reward Tier
+          </button>
+          
+          <button
+            onClick={reloadRewardSettings}
+            disabled={loading}
+            style={{
+              background: loading ? '#cccccc' : '#17a2b8',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loading ? 'Reloading...' : '🔄 Reload Settings'}
           </button>
           
           <button
