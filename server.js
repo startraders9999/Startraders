@@ -76,8 +76,8 @@ const referralSettingsRouter = require('./routes/referralSettings');
 app.use(referralSettingsRouter);
 
 // Referral Trading Income API
-const referralTradingIncomeRouter = require('./routes/referralTradingIncome');
-app.use('/api', referralTradingIncomeRouter.router);
+const ReferralTradingIncomeRoutes = require('./routes/referralTradingIncome');
+app.use('/api', ReferralTradingIncomeRoutes.router);
 
 // Health Check / Ping Route - Keep Render awake
 app.get('/api/ping', (req, res) => {
