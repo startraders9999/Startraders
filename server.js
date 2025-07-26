@@ -1675,18 +1675,38 @@ app.post('/api/user/send-withdraw-otp', async (req, res) => {
 
 app.post('/api/user/verify-withdraw-otp', async (req, res) => {
   const { email, otp } = req.body;
-  console.log('🔍 OTP Verification Request:', { 
-    email, 
-    otp, 
-    otpType: typeof otp, 
-    otpLength: otp?.toString()?.length,
-    rawBody: req.body 
+  
+  // 🚨 INSTANT DEBUG - Exact problem dikhaega
+  console.log('� VERIFY OTP DEBUG:', {
+    bodyReceived: !!req.body,
+    emailReceived: !!email,
+    emailValue: email,
+    otpReceived: !!otp,
+    otpValue: otp,
+    otpType: typeof otp,
+    fullBody: JSON.stringify(req.body)
   });
   
-  if (!email || !otp) {
-    console.log('❌ Missing fields:', { email: !!email, otp: !!otp });
-    return res.json({ success: false, message: 'Email and OTP are required' });
+  // 🚨 EXACT ERROR CHECK
+  if (!email) {
+    console.log('❌❌❌ EMAIL MISSING FROM FRONTEND ❌❌❌');
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Email missing from request',
+      debug: 'Frontend is not sending email properly'
+    });
   }
+  
+  if (!otp) {
+    console.log('❌❌❌ OTP MISSING FROM FRONTEND ❌❌❌');
+    return res.status(400).json({ 
+      success: false, 
+      message: 'OTP missing from request',
+      debug: 'Frontend is not sending OTP properly'
+    });
+  }
+  
+  console.log('✅ Both email and OTP received properly');
   
   try {
     const Otp = require('./models/otp');
@@ -1705,17 +1725,22 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
       expiresAt: { $gt: new Date() }
     }).sort({ createdAt: -1 });
     
-    console.log('📋 OTP Document Status:', {
+    console.log('📋 OTP Search Result:', {
+      searchEmail: email,
       found: !!otpDoc,
-      email: otpDoc?.email,
+      otpDocEmail: otpDoc?.email,
       expires: otpDoc?.expiresAt,
       created: otpDoc?.createdAt,
       timeLeft: otpDoc ? Math.round((new Date(otpDoc.expiresAt) - new Date()) / 1000) + 's' : 'N/A'
     });
     
     if (!otpDoc) {
-      console.log('❌ No valid OTP found for:', email);
-      return res.json({ success: false, message: 'OTP not found or expired' });
+      console.log('❌ No OTP found in database for email:', email);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'OTP not found. Please request a new OTP.',
+        debug: `No OTP record found for email: ${email}`
+      });
     }
     
     // ✅ Use bcryptjs (Render-safe) with proper string conversion
@@ -1727,7 +1752,11 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
     // 🔧 Additional validation: ensure it's 6 digits
     if (!/^\d{6}$/.test(otpString)) {
       console.log('❌ Invalid OTP format:', otpString);
-      return res.json({ success: false, message: 'OTP must be 6 digits' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'OTP must be 6 digits',
+        debug: `Invalid format: ${otpString}`
+      });
     }
     
     console.log('🔐 Comparing OTP:', { 
@@ -1739,7 +1768,7 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
     
     // 🔧 Critical: Use bcryptjs compare with proper error handling
     const match = await bcrypt.compare(otpString, otpDoc.otpHash);
-    console.log('✅ OTP Verification Result:', match);
+    console.log('✅ OTP Comparison Result:', match);
     
     if (!match) {
       console.log('❌ OTP MISMATCH:', { 
@@ -1747,13 +1776,17 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
         provided: otpString, 
         timestamp: new Date().toISOString() 
       });
-      return res.json({ success: false, message: 'Invalid OTP' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid OTP. Please check and try again.',
+        debug: 'OTP hash comparison failed'
+      });
     }
     
-    console.log('🎉 OTP VERIFIED successfully for:', email);
+    console.log('🎉 OTP VERIFIED SUCCESSFULLY for:', email);
     
     // ✅ Keep OTP for final withdrawal - don't delete yet
-    res.json({ 
+    res.status(200).json({ 
       success: true, 
       message: 'OTP Verified Successfully',
       timestamp: new Date().toISOString()
@@ -1761,10 +1794,11 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
     
   } catch (err) {
     console.error('💥 OTP verify error:', err);
-    res.json({ 
+    res.status(500).json({ 
       success: false, 
       message: 'OTP verification failed', 
-      error: err.message 
+      error: err.message,
+      debug: 'Server error during verification'
     });
   }
 });
