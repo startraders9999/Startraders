@@ -77,7 +77,7 @@ const Team = () => {
             </div>
           ) : (
             <div style={{ textAlign: 'center', color: '#a259e6', marginBottom: 24 }}>
-              कोई Active Member नहीं मिला
+              No Active Members Found
             </div>
           )}
           <div style={{ fontWeight: 700, fontSize: 18, color: '#222', marginBottom: 8, textAlign: 'center' }}>Direct Referrals Details</div>
@@ -87,7 +87,7 @@ const Team = () => {
             </div>
           ) : (
             <div style={{ textAlign: 'center', color: '#a259e6' }}>
-              कोई Direct Referral नहीं मिला
+              No Direct Referrals Found
             </div>
           )}
         </div>
