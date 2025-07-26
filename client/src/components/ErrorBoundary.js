@@ -48,8 +48,12 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// API Status Checker Component
+// API Status Checker Component - Temporarily disabled to avoid CORS issues
 export const APIStatusChecker = () => {
+  return null; // Temporarily disabled
+  
+  // Original code commented out to avoid CORS issues during initial load
+  /*
   const [status, setStatus] = React.useState('checking');
   const [details, setDetails] = React.useState(null);
 
@@ -93,6 +97,7 @@ export const APIStatusChecker = () => {
       {status === 'checking' && '⏳'}
     </div>
   );
+  */
 };
 
 export default ErrorBoundary;
