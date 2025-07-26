@@ -1578,19 +1578,26 @@ app.use('/api/user/withdrawal-otp', userWithdrawalOtpRouter);
 // Additional withdrawal OTP endpoints for frontend compatibility
 app.post('/api/user/send-withdraw-otp', async (req, res) => {
   const { email } = req.body;
+  console.log('OTP Generation Request for email:', email);
+  
   if (!email) return res.json({ success: false, message: 'Email required' });
   
   try {
     // Invalidate old OTPs for withdrawal
     const Otp = require('./models/otp');
-    await Otp.deleteMany({ email, purpose: 'withdrawal' });
+    const deletedCount = await Otp.deleteMany({ email, purpose: 'withdrawal' });
+    console.log('Deleted old OTPs count:', deletedCount.deletedCount);
     
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('Generated OTP:', otp, 'for email:', email);
+    
     const bcrypt = require('bcryptjs');
     const otpHash = await bcrypt.hash(otp, 10);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    await Otp.create({ email, otpHash, purpose: 'withdrawal', expiresAt });
+    
+    const otpDoc = await Otp.create({ email, otpHash, purpose: 'withdrawal', expiresAt });
+    console.log('OTP saved to database:', { id: otpDoc._id, email: otpDoc.email, expires: otpDoc.expiresAt });
     
     // Send email with actual nodemailer
     const nodemailer = require('nodemailer');
@@ -1636,27 +1643,84 @@ app.post('/api/user/send-withdraw-otp', async (req, res) => {
 
 app.post('/api/user/verify-withdraw-otp', async (req, res) => {
   const { email, otp } = req.body;
+  console.log('OTP Verification Request:', { email, otp, otpType: typeof otp });
+  
   if (!email || !otp) return res.json({ success: false, message: 'All fields required' });
   
   try {
     const Otp = require('./models/otp');
     const otpDoc = await Otp.findOne({ email, purpose: 'withdrawal' });
+    console.log('OTP Document found:', otpDoc ? 'YES' : 'NO', otpDoc ? { email: otpDoc.email, expires: otpDoc.expiresAt } : '');
+    
     if (!otpDoc) return res.json({ success: false, message: 'OTP not found' });
     
     if (otpDoc.expiresAt < new Date()) {
       await Otp.deleteOne({ _id: otpDoc._id });
+      console.log('OTP expired and deleted for:', email);
       return res.json({ success: false, message: 'OTP expired' });
     }
     
     const bcrypt = require('bcryptjs');
-    const match = await bcrypt.compare(otp, otpDoc.otpHash);
-    if (!match) return res.json({ success: false, message: 'Invalid OTP' });
+    // Ensure OTP is string and clean it
+    let otpString = otp.toString().trim();
+    console.log('Comparing OTP:', { provided: otpString, hash: otpDoc.otpHash });
     
+    const match = await bcrypt.compare(otpString, otpDoc.otpHash);
+    console.log('OTP Verification Result:', match);
+    
+    if (!match) {
+      console.log('OTP MISMATCH for email:', email, 'provided:', otpString);
+      return res.json({ success: false, message: 'Invalid OTP' });
+    }
+    
+    console.log('OTP VERIFIED successfully for:', email);
     // Don't delete OTP here - keep it for withdrawal verification
     res.json({ success: true, message: 'OTP Verified' });
   } catch (err) {
     console.error('OTP verify error:', err);
     res.json({ success: false, message: 'OTP verification failed' });
+  }
+});
+
+// DEBUG: Test OTP generation and verification
+app.post('/api/debug/test-otp', async (req, res) => {
+  try {
+    const testEmail = 'test@example.com';
+    const testOtp = '123456';
+    
+    const bcrypt = require('bcryptjs');
+    const otpHash = await bcrypt.hash(testOtp, 10);
+    console.log('Test OTP Hash:', otpHash);
+    
+    // Test different input types
+    const tests = [
+      { input: '123456', type: 'string' },
+      { input: 123456, type: 'number' },
+      { input: '  123456  ', type: 'string with spaces' }
+    ];
+    
+    const results = [];
+    for (const test of tests) {
+      const inputString = test.input.toString().trim();
+      const match = await bcrypt.compare(inputString, otpHash);
+      results.push({
+        input: test.input,
+        type: test.type,
+        cleaned: inputString,
+        match: match
+      });
+      console.log(`Test: ${test.type} -> ${test.input} -> ${inputString} -> ${match}`);
+    }
+    
+    res.json({
+      success: true,
+      testOtp: testOtp,
+      hash: otpHash,
+      results: results
+    });
+  } catch (error) {
+    console.error('OTP test error:', error);
+    res.json({ success: false, error: error.message });
   }
 });
 
