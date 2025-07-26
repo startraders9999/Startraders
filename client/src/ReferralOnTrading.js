@@ -1,33 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import './ReferralOnTrading.css';
 import UniversalResponsiveLayout from './UniversalResponsiveLayout';
+import axios from 'axios';
 
 const ReferralOnTrading = () => {
   const [totalIncome, setTotalIncome] = useState(0);
+  const [directReferrals, setDirectReferrals] = useState(0);
+  const [unlockedLevels, setUnlockedLevels] = useState(0);
+  const [incomeHistory, setIncomeHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user._id) {
-      fetch(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income?userId=${user._id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setTotalIncome(data.totalIncome || 0);
-          }
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    fetchReferralTradingData();
   }, []);
 
+  const fetchReferralTradingData = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user._id) {
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching referral trading income data...');
+      const response = await axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/${user._id}`);
+      
+      if (response.data.success) {
+        setTotalIncome(response.data.totalIncome || 0);
+        setDirectReferrals(response.data.directReferrals || 0);
+        setUnlockedLevels(response.data.unlockedLevels || 0);
+        setIncomeHistory(response.data.incomeHistory || []);
+        console.log('Data loaded:', response.data);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching referral trading data:', error);
+      setLoading(false);
+    }
+  };
+
+  // Updated level structure with correct percentages
   const levelIncomeStructure = [
     { level: 1, percentage: '15%', color: '#28a745' },
     { level: 2, percentage: '10%', color: '#28a745' },
     { level: 3, percentage: '8%', color: '#ffc107' },
-    { level: 4, percentage: '5%', color: '#ffc107' },
+    { level: 4, percentage: '6%', color: '#ffc107' },
     { level: 5, percentage: '4%', color: '#17a2b8' },
     { level: 6, percentage: '3%', color: '#17a2b8' },
     { level: 7, percentage: '3%', color: '#6f42c1' },
@@ -37,7 +54,7 @@ const ReferralOnTrading = () => {
     { level: 11, percentage: '1%', color: '#e83e8c' },
     { level: 12, percentage: '0.50%', color: '#e83e8c' },
     { level: 13, percentage: '0.50%', color: '#6c757d' },
-    { level: 14, percentage: '3%', color: '#20c997' },
+    { level: 14, percentage: '2%', color: '#20c997' },
     { level: 15, percentage: '5%', color: '#dc3545' }
   ];
 
@@ -66,7 +83,8 @@ const ReferralOnTrading = () => {
           background: '#8c4be7',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 0 0 24px',
+          justifyContent: 'space-between',
+          padding: '0 24px',
           height: '64px',
           boxShadow: '0 2px 8px rgba(140,75,231,0.08)',
           marginBottom: '30px',
@@ -75,6 +93,34 @@ const ReferralOnTrading = () => {
           <span style={{ color: '#fff', fontWeight: 700, fontSize: '2rem', letterSpacing: '1px' }}>
             REFERRAL INCOME ON TRADING INCOME
           </span>
+          
+          <button
+            onClick={fetchReferralTradingData}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: '2px solid rgba(255,255,255,0.3)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '25px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.3)';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.2)';
+              e.target.style.transform = 'scale(1)';
+            }}
+          >
+            🔄 Refresh Data
+          </button>
         </div>
 
         <div style={{
@@ -154,6 +200,188 @@ const ReferralOnTrading = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Current Status Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #20c997 0%, #17a2b8 100%)',
+          color: 'white',
+          padding: '25px',
+          borderRadius: '15px',
+          marginBottom: '30px',
+          textAlign: 'center',
+          boxShadow: '0 4px 15px rgba(32,201,151,0.3)'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            marginBottom: '15px'
+          }}>
+            <span style={{ fontSize: '1.5rem', marginRight: '10px' }}>🎯</span>
+            <h3 style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: '700', 
+              margin: 0
+            }}>
+              Your Current Status
+            </h3>
+          </div>
+          
+          <div style={{ fontSize: '1.2rem', lineHeight: '1.8' }}>
+            <div style={{ marginBottom: '8px' }}>
+              <strong>Direct Referrals:</strong> {directReferrals}
+            </div>
+            <div style={{ 
+              fontSize: '1.4rem', 
+              fontWeight: '700',
+              background: 'rgba(255,255,255,0.2)',
+              padding: '10px 20px',
+              borderRadius: '25px',
+              display: 'inline-block',
+              marginTop: '10px'
+            }}>
+              🔓 You have unlocked up to Level {unlockedLevels}
+            </div>
+          </div>
+        </div>
+
+        {/* Income History Section */}
+        <div style={{
+          background: 'white',
+          borderRadius: '15px',
+          padding: '30px',
+          marginBottom: '30px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
+        }}>
+          <h2 style={{ 
+            fontSize: '1.8rem', 
+            fontWeight: '700', 
+            color: '#333',
+            margin: '0 0 25px 0',
+            paddingBottom: '15px',
+            borderBottom: '2px solid #28a745',
+            textAlign: 'center'
+          }}>
+            💰 YOUR REFERRAL INCOME HISTORY
+          </h2>
+          
+          {incomeHistory.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '40px',
+              color: '#666',
+              fontSize: '1.2rem'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '15px' }}>📊</div>
+              <div>No referral income transactions yet</div>
+              <div style={{ fontSize: '1rem', marginTop: '10px' }}>
+                Start referring friends to see your earnings here!
+              </div>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse',
+                fontSize: '1rem'
+              }}>
+                <thead>
+                  <tr style={{ 
+                    background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                    color: 'white'
+                  }}>
+                    <th style={{ 
+                      padding: '15px 10px', 
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}>Date</th>
+                    <th style={{ 
+                      padding: '15px 10px', 
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}>From User</th>
+                    <th style={{ 
+                      padding: '15px 10px', 
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}>Level</th>
+                    <th style={{ 
+                      padding: '15px 10px', 
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}>Percentage</th>
+                    <th style={{ 
+                      padding: '15px 10px', 
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}>Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {incomeHistory.map((transaction, index) => (
+                    <tr key={transaction._id} style={{ 
+                      background: index % 2 === 0 ? '#f8f9fa' : 'white',
+                      borderBottom: '1px solid #dee2e6'
+                    }}>
+                      <td style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'center',
+                        fontSize: '0.9rem'
+                      }}>
+                        {new Date(transaction.createdAt).toLocaleDateString('en-IN')}
+                      </td>
+                      <td style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'center',
+                        fontWeight: '500'
+                      }}>
+                        {transaction.fromUserId?.username || 'Unknown User'}
+                      </td>
+                      <td style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        color: '#8c4be7'
+                      }}>
+                        Level {transaction.level}
+                      </td>
+                      <td style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'center',
+                        color: '#17a2b8',
+                        fontWeight: '600'
+                      }}>
+                        {transaction.percentage}%
+                      </td>
+                      <td style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'center',
+                        fontWeight: '700',
+                        color: '#28a745',
+                        fontSize: '1.1rem'
+                      }}>
+                        ₹{transaction.incomeAmount.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              <div style={{
+                marginTop: '20px',
+                textAlign: 'center',
+                padding: '15px',
+                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                borderRadius: '10px',
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                🎯 Total Referral Income: <span style={{ color: '#28a745' }}>₹{totalIncome.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div style={{
@@ -244,14 +472,17 @@ const ReferralOnTrading = () => {
                       textAlign: 'center'
                     }}>
                       <span style={{
-                        background: item.level <= 6 ? '#28a745' : '#ffc107',
+                        background: item.level <= unlockedLevels ? '#28a745' : '#dc3545',
                         color: 'white',
-                        padding: '6px 12px',
-                        borderRadius: '20px',
+                        padding: '8px 16px',
+                        borderRadius: '25px',
                         fontSize: '0.9rem',
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px'
                       }}>
-                        {item.level <= 6 ? '🔓 Active' : '🔒 Locked'}
+                        {item.level <= unlockedLevels ? '🔓 Unlocked' : '🔒 Locked'}
                       </span>
                     </td>
                   </tr>

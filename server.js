@@ -75,6 +75,10 @@ app.use(cronRouter);
 const referralSettingsRouter = require('./routes/referralSettings');
 app.use(referralSettingsRouter);
 
+// Referral Trading Income API
+const referralTradingIncomeRouter = require('./routes/referralTradingIncome');
+app.use('/api', referralTradingIncomeRouter.router);
+
 // Health Check / Ping Route - Keep Render awake
 app.get('/api/ping', (req, res) => {
   res.status(200).json({

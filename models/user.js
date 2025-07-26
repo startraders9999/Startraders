@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema({
   depositedAmount: { type: Number, default: 0 }, // User's principal deposit
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   referralCode: { type: String, unique: true }, // Referral system
+  directReferrals: { type: Number, default: 0 }, // Direct referrals count
+  unlockedLevels: { type: Number, default: 0 }, // Auto calculated as directReferrals * 2, max 15
+  totalReferralTradingIncome: { type: Number, default: 0 }, // Total earned from referral trading income
   boosting: {
     isActive: { type: Boolean, default: false },
     startTime: { type: Date, default: null },
