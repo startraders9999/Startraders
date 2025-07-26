@@ -1,492 +1,161 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import ReferralList from './ReferralList';
 import './Dashboard.css';
 
 const Referral = () => {
-  // Default data structure to prevent loading issues
-  const defaultData = {
-    totalReferrals: 0,
-    activeReferrals: 0,
-    totalEarnings: 0,
-    levelSummary: [
-      { users: 0, investment: 0, earnings: 0 },
-      { users: 0, investment: 0, earnings: 0 },
-      { users: 0, investment: 0, earnings: 0 }
-    ],
-    referralList: [],
-    incomeHistory: []
-  };
-
   const user = JSON.parse(localStorage.getItem('user'));
-  const [overview, setOverview] = useState(defaultData);
-  const [loading, setLoading] = useState(false); // Start with false
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
-  const fetchOverview = async () => {
-    if (!user?._id || hasAttemptedFetch) {
-      return;
-    }
+  const fetchOverview = () => {
+    if (!user?._id) return;
     
-    setHasAttemptedFetch(true);
     setLoading(true);
+    const url = `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`;
+    console.log('[Referral] Fetching:', url);
     
-    try {
-      console.log('[Referral] Starting API call for user:', user._id);
-      
-      const response = await axios.get(
-        `https://startraders-fullstack-9ayr.onrender.com/api/user/referral-overview/${user._id}`,
-        { 
-          timeout: 3000,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.data?.success) {
-        console.log('[Referral] API success:', response.data);
-        const data = response.data;
-        setOverview({
-          totalReferrals: data.totalReferrals || 0,
-          activeReferrals: data.levelCounts || 0,
-          totalEarnings: data.levelIncome || 0,
-          levelSummary: Array.isArray(data.referralList) && data.referralList.length > 0 
-            ? data.referralList.slice(0, 3).map(ref => ({
-                users: 1,
-                investment: parseFloat(ref.investmentAmount) || 0,
-                earnings: parseFloat(ref.income) || 0
-              }))
-            : defaultData.levelSummary,
-          referralList: Array.isArray(data.referralList) ? data.referralList : [],
-          incomeHistory: Array.isArray(data.referralList) ? data.referralList : []
-        });
-      } else {
-        console.log('[Referral] API returned success:false, using default data');
-        setOverview(defaultData);
+    axios.get(url, {
+      headers: {
+        // 'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    } catch (error) {
-      console.error('[Referral] API Error:', error.message);
-      setOverview(defaultData);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    })
+      .then(res => {
+        console.log('[Referral] API response:', res.data);
+        setOverview(res.data);
+        setLoading(false);
+        setRefreshing(false);
+      })
+      .catch((err) => {
+        console.error('[Referral] API error:', err);
+        setLoading(false);
+        setRefreshing(false);
+      });
   };
 
   useEffect(() => {
-    // Only fetch once when component mounts
-    if (user?._id && !hasAttemptedFetch) {
-      fetchOverview();
-    }
-  }, [user?._id, hasAttemptedFetch]);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setHasAttemptedFetch(false); // Allow refetch
     fetchOverview();
-  };
+  }, [user]);
 
-  // Always show the page immediately - no loading screen
-  // Ensure overview has default structure
-  const safeOverview = overview || defaultData;
+  const NoReferralUI = () => (
+    <></>
+  );
+
+  if (!overview || typeof overview !== 'object') {
+    return (
+      <div className="referral-theme-container">
+        {/* Referral link block for all users */}
+        <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+          <p className="text-sm text-gray-600">आपका Referral Link:</p>
+          <div className="flex items-center justify-between mt-2">
+            <input
+              type="text"
+              readOnly
+              value={`https://startraders-f.onrender.com/register?ref=${user?._id}`}
+              className="border px-3 py-2 w-full rounded text-sm text-gray-800"
+            />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://startraders-f.onrender.com/register?ref=${user?._id}`);
+                alert("Referral link copied!");
+              }}
+              className="ml-2 bg-purple-600 text-white px-3 py-2 rounded text-sm"
+            >
+              कॉपी करें
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="referral-theme-container">
-      {/* Header */}
-      <div className="referral-title">Direct Referral Income</div>
-      <p style={{ 
-        color: '#666', 
-        fontSize: '1.1rem', 
-        marginBottom: '30px', 
-        textAlign: 'center',
-        maxWidth: '600px'
-      }}>
-        Manage your referral network and track your earnings from direct referrals
-      </p>
-
-      {/* Referral Link Section */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-        padding: '25px',
-        marginBottom: '30px',
-        maxWidth: '700px',
-        width: '100%',
-        border: '2px solid #e0d4f7'
-      }}>
-        <h3 style={{
-          color: '#6a0dad',
-          fontSize: '1.3rem',
-          marginBottom: '15px',
-          fontWeight: '600'
-        }}>
-          🔗 Your Referral Link
-        </h3>
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
+      {/* Referral link block for all users */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <p className="text-sm text-gray-600">आपका Referral Link:</p>
+        <div className="flex items-center justify-between mt-2">
           <input
             type="text"
             readOnly
             value={`https://startraders-f.onrender.com/register?ref=${user?._id}`}
-            style={{
-              flex: '1',
-              minWidth: '300px',
-              padding: '12px 15px',
-              backgroundColor: '#f8f6ff',
-              border: '2px solid #e0d4f7',
-              borderRadius: '8px',
-              color: '#333',
-              fontSize: '14px'
-            }}
+            className="border px-3 py-2 w-full rounded text-sm text-gray-800"
           />
           <button
             onClick={() => {
               navigator.clipboard.writeText(`https://startraders-f.onrender.com/register?ref=${user?._id}`);
               alert("Referral link copied!");
             }}
-            style={{
-              padding: '12px 20px',
-              background: '#6a0dad',
-              border: 'none',
-              borderRadius: '8px',
-              color: 'white',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-            onMouseEnter={(e) => e.target.style.background = '#5a0ca0'}
-            onMouseLeave={(e) => e.target.style.background = '#6a0dad'}
+            className="ml-2 bg-purple-600 text-white px-3 py-2 rounded text-sm"
           >
-            📋 Copy Link
+            कॉपी करें
           </button>
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '20px',
-        marginBottom: '30px',
-        maxWidth: '800px',
-        width: '100%'
-      }}>
-        <div style={{
-          background: '#fff',
-          borderRadius: '16px',
-          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-          padding: '25px',
-          textAlign: 'center',
-          border: '2px solid #e0d4f7'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '10px' }}>💰</div>
-          <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
-            ${safeOverview?.totalEarnings?.toFixed(2) || '0.00'}
-          </h3>
-          <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Earnings</p>
-        </div>
-
-        <div style={{
-          background: '#fff',
-          borderRadius: '16px',
-          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-          padding: '25px',
-          textAlign: 'center',
-          border: '2px solid #e0d4f7'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '10px' }}>👥</div>
-          <h3 style={{ color: '#6a0dad', fontSize: '1.8rem', margin: '5px 0' }}>
-            {safeOverview?.totalReferrals || 0}
-          </h3>
-          <p style={{ color: '#666', fontSize: '0.9rem' }}>Total Referrals</p>
-        </div>
-
-        <div style={{
-          background: '#fff',
-          borderRadius: '16px',
-          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-          padding: '25px',
-          textAlign: 'center',
-          border: '2px solid rgba(34, 197, 94, 0.3)'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '10px' }}>✅</div>
-          <h3 style={{ color: '#22c55e', fontSize: '1.8rem', margin: '5px 0' }}>
-            {safeOverview?.activeReferrals || 0}
-          </h3>
-          <p style={{ color: '#666', fontSize: '0.9rem' }}>Active Members</p>
-        </div>
-
-        <div style={{
-          background: '#fff',
-          borderRadius: '16px',
-          boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-          padding: '25px',
-          textAlign: 'center',
-          border: '2px solid rgba(239, 68, 68, 0.3)'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '10px' }}>❌</div>
-          <h3 style={{ color: '#ef4444', fontSize: '1.8rem', margin: '5px 0' }}>
-            {(safeOverview?.totalReferrals || 0) - (safeOverview?.activeReferrals || 0)}
-          </h3>
-          <p style={{ color: '#666', fontSize: '0.9rem' }}>Inactive Members</p>
-        </div>
-      </div>
-      {/* Level Summary Table */}
-      <div className="referral-summary-card" style={{ maxWidth: '800px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <h3 className="referral-summary-heading">
-            📊 Level Summary
-          </h3>
-          <button
-            className="referral-refresh-btn"
-            onClick={handleRefresh}
-            disabled={refreshing}
-          >
-            {refreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
-          </button>
-        </div>
-
-        <div style={{ overflowX: 'auto' }}>
-          <table className="referral-summary-table">
-            <thead>
-              <tr>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Level</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Members</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Investment</th>
-                <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#6a0dad' }}>Earned Income</th>
+      {/* ...existing code... */}
+      <div className="referral-title">Referral Income Dashboard</div>
+      
+      <div className="referral-summary-card">
+        <div className="referral-summary-heading">Referral Summary</div>
+        <button 
+          className="referral-refresh-btn" 
+          onClick={() => { setRefreshing(true); fetchOverview(); }} 
+          disabled={refreshing}
+        >
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
+        
+        <table className="referral-summary-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Members</th>
+              <th>Investment</th>
+              <th>Earned Income</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1,2,3].map(lvl => (
+              <tr key={lvl}>
+                <td>L{lvl}</td>
+                <td>{overview?.levelSummary?.[lvl-1]?.users ?? 0}</td>
+                <td>${overview?.levelSummary?.[lvl-1]?.investment?.toFixed(2) ?? '0.00'}</td>
+                <td>${overview?.levelSummary?.[lvl-1]?.earnings?.toFixed(2) ?? '0.00'}</td>
               </tr>
-            </thead>
-            <tbody>
-              {[1,2,3].map(lvl => (
-                <tr key={lvl} style={{
-                  borderBottom: '1px solid #e0d4f7',
-                  backgroundColor: lvl % 2 === 0 ? '#f8f6ff' : '#fff'
-                }}>
-                  <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
-                    Level {lvl}
-                  </td>
-                  <td style={{ padding: '12px 15px', color: '#333' }}>
-                    {safeOverview?.levelSummary?.[lvl-1]?.users ?? 0}
-                  </td>
-                  <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
-                    ${safeOverview?.levelSummary?.[lvl-1]?.investment?.toFixed(2) ?? '0.00'}
-                  </td>
-                  <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
-                    ${safeOverview?.levelSummary?.[lvl-1]?.earnings?.toFixed(2) ?? '0.00'}
-                  </td>
-                </tr>
-              ))}
-              <tr style={{
-                background: '#e0d4f7',
-                fontWeight: 'bold'
-              }}>
-                <td style={{ padding: '15px', color: '#6a0dad', fontWeight: 'bold' }}>Total</td>
-                <td style={{ padding: '15px', color: '#333', fontWeight: 'bold' }}>
-                  {safeOverview?.totalReferrals ?? 0}
-                </td>
-                <td style={{ padding: '15px', color: '#22c55e', fontWeight: 'bold' }}>
-                  ${[0,1,2].reduce((a,i) => a + (safeOverview?.levelSummary?.[i]?.investment || 0), 0).toFixed(2)}
-                </td>
-                <td style={{ padding: '15px', color: '#22c55e', fontWeight: 'bold' }}>
-                  ${[0,1,2].reduce((a,i) => a + (safeOverview?.levelSummary?.[i]?.earnings || 0), 0).toFixed(2)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            ))}
+            <tr className="referral-summary-total">
+              <td>Total</td>
+              <td>{overview?.totalReferrals ?? 0}</td>
+              <td>${[0,1,2].reduce((a,i) => a + (overview?.levelSummary?.[i]?.investment || 0), 0).toFixed(2)}</td>
+              <td>${[0,1,2].reduce((a,i) => a + (overview?.levelSummary?.[i]?.earnings || 0), 0).toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="referral-section">
+        <div className="referral-section-title">Live Referral List</div>
+        <div className="referral-list-card">
+          {overview?.referralList && overview.referralList.length > 0 ? (
+            <ReferralList data={overview.referralList} type="referral" />
+          ) : (
+            <div className="referral-no-data">कोई referral नहीं मिला</div>
+          )}
         </div>
       </div>
 
-      {/* Active Referral Members */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-        padding: '25px',
-        marginBottom: '30px',
-        maxWidth: '900px',
-        width: '100%',
-        border: '2px solid #e0d4f7'
-      }}>
-        <h3 style={{
-          color: '#6a0dad',
-          fontSize: '1.3rem',
-          fontWeight: '600',
-          marginBottom: '20px'
-        }}>
-          👥 Referral Members
-        </h3>
-
-        {safeOverview?.referralList && safeOverview.referralList.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              minWidth: '700px'
-            }}>
-              <thead>
-                <tr style={{
-                  background: '#6a0dad',
-                  color: 'white'
-                }}>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Name</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Email</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Level</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Deposit</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Status</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {safeOverview.referralList.map((member, idx) => (
-                  <tr key={member._id || idx} style={{
-                    borderBottom: '1px solid #e0d4f7',
-                    backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
-                  }}>
-                    <td style={{ padding: '12px 15px', color: '#333', fontWeight: '500' }}>
-                      {member?.name || 'N/A'}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
-                      {member?.email || 'N/A'}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
-                      Level {member?.level ?? 1}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600' }}>
-                      ${member?.depositedAmount?.toFixed(2) ?? '0.00'}
-                    </td>
-                    <td style={{ padding: '12px 15px' }}>
-                      <span style={{
-                        padding: '4px 12px',
-                        borderRadius: '20px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
-                        backgroundColor: (member?.depositedAmount > 0) ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: (member?.depositedAmount > 0) ? '#22c55e' : '#ef4444',
-                        border: `1px solid ${(member?.depositedAmount > 0) ? '#22c55e' : '#ef4444'}`
-                      }}>
-                        {(member?.depositedAmount > 0) ? '✅ Active' : '❌ Inactive'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
-                      {member?.joined ? new Date(member.joined).toLocaleDateString() : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#666'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '15px' }}>👥</div>
-            <p>No referral members yet</p>
-            <p style={{ fontSize: '0.9rem', color: '#999' }}>Share your referral link to start earning!</p>
-          </div>
-        )}
+      <div className="referral-section">
+        <div className="referral-section-title">Referral Income History</div>
+        <div className="overflow-x-auto bg-white rounded-lg shadow-lg p-4 responsive-wrapper">
+          {overview?.incomeHistory && overview.incomeHistory.length > 0 ? (
+            <ReferralList data={overview.incomeHistory} type="history" />
+          ) : (
+            <div className="referral-no-data">कोई referral income history नहीं मिली</div>
+          )}
+        </div>
       </div>
-
-      {/* Income History */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 2px 16px rgba(106,13,173,0.08)',
-        padding: '25px',
-        maxWidth: '900px',
-        width: '100%',
-        border: '2px solid #e0d4f7'
-      }}>
-        <h3 style={{
-          color: '#6a0dad',
-          fontSize: '1.3rem',
-          fontWeight: '600',
-          marginBottom: '20px'
-        }}>
-          💰 Income History
-        </h3>
-
-        {safeOverview?.incomeHistory && safeOverview.incomeHistory.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              minWidth: '800px'
-            }}>
-              <thead>
-                <tr style={{
-                  background: '#6a0dad',
-                  color: 'white'
-                }}>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Date</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Level</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Amount</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Source User</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600' }}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {safeOverview.incomeHistory.map((income, idx) => (
-                  <tr key={income._id || idx} style={{
-                    borderBottom: '1px solid #e0d4f7',
-                    backgroundColor: idx % 2 === 0 ? '#f8f6ff' : '#fff'
-                  }}>
-                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
-                      {income?.date ? new Date(income.date).toLocaleString() : 'N/A'}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#6a0dad', fontWeight: '600' }}>
-                      Level {income?.level ?? 1}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#22c55e', fontWeight: '600', fontSize: '1.1rem' }}>
-                      +${income?.amount?.toFixed(2) ?? '0.00'}
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#333' }}>
-                      {income?.sourceUser ? `${income.sourceUser.name}` : 'N/A'}
-                      <br />
-                      <span style={{ color: '#666', fontSize: '0.8rem' }}>
-                        {income?.sourceUser?.email || ''}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 15px', color: '#666', fontSize: '0.9rem' }}>
-                      {income?.description || 'Referral Income'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#666'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '15px' }}>💰</div>
-            <p>No income history yet</p>
-            <p style={{ fontSize: '0.9rem', color: '#999' }}>Income will appear here when your referrals make deposits</p>
-          </div>
-        )}
-      </div>
-
-      {/* Add CSS for animations */}
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };
