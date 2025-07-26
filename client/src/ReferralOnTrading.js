@@ -94,83 +94,33 @@ const ReferralOnTrading = () => {
             REFERRAL INCOME ON TRADING INCOME
           </span>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={async () => {
-                try {
-                  const user = JSON.parse(localStorage.getItem('user'));
-                  if (!user || !user._id) {
-                    alert('Please login first');
-                    return;
-                  }
-                  
-                  const response = await axios.post(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/create-sample/${user._id}`);
-                  
-                  if (response.data.success) {
-                    alert('Sample trading income created! Refreshing data...');
-                    fetchReferralTradingData();
-                  } else {
-                    alert('Error creating sample data');
-                  }
-                } catch (error) {
-                  console.error('Error:', error);
-                  alert('Error creating sample data');
-                }
-              }}
-              style={{
-                background: 'rgba(40,167,69,0.8)',
-                border: '2px solid rgba(255,255,255,0.3)',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '25px',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(40,167,69,1)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(40,167,69,0.8)';
-                e.target.style.transform = 'scale(1)';
-              }}
-            >
-              🎯 Create Sample Data
-            </button>
-            
-            <button
-              onClick={fetchReferralTradingData}
-              style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: '2px solid rgba(255,255,255,0.3)',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '25px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(255,255,255,0.3)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(255,255,255,0.2)';
-                e.target.style.transform = 'scale(1)';
-              }}
-            >
-              🔄 Refresh Data
-            </button>
-          </div>
+          <button
+            onClick={fetchReferralTradingData}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: '2px solid rgba(255,255,255,0.3)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '25px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.3)';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.2)';
+              e.target.style.transform = 'scale(1)';
+            }}
+          >
+            🔄 Refresh Data
+          </button>
         </div>
 
         <div style={{
