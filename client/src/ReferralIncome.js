@@ -94,7 +94,7 @@ const ReferralIncome = () => {
       <div>
         <h3 style={{ marginBottom: '20px' }}>Recent Referral Income</h3>
         {referralData.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#888' }}>No referral income yet</p>
+          <div style={{ height: '0px', overflow: 'hidden' }}></div>
         ) : (
           <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
             {referralData.slice(0, 20).map((transaction, index) => (

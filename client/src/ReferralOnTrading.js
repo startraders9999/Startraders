@@ -40,7 +40,7 @@ const ReferralOnTrading = () => {
         {loading ? (
           <div className="referral-no-data">Loading...</div>
         ) : transactions.length === 0 ? (
-          <div className="referral-no-data">No referral trading income found.</div>
+          <div style={{ height: '0px', overflow: 'hidden' }}></div>
         ) : (
           <div className="referral-table-wrapper">
             <table className="referral-table">

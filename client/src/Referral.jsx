@@ -132,7 +132,7 @@ const Referral = () => {
           {overview?.referralList && overview.referralList.length > 0 ? (
             <ReferralList data={overview.referralList} type="referral" />
           ) : (
-            <div className="referral-no-data">कोई referral नहीं मिला</div>
+            <div style={{ height: '0px', overflow: 'hidden' }}></div>
           )}
         </div>
       </div>
@@ -142,7 +142,7 @@ const Referral = () => {
           {overview?.incomeHistory && overview.incomeHistory.length > 0 ? (
             <ReferralList data={overview.incomeHistory} type="history" />
           ) : (
-            <div className="referral-no-data">कोई referral income history नहीं मिली</div>
+            <div style={{ height: '0px', overflow: 'hidden' }}></div>
           )}
         </div>
       </div>

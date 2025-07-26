@@ -72,7 +72,7 @@ const Trading = () => {
         <h3 className="section-title" style={{ color: '#6a0dad' }}>TRADING INCOME HISTORY</h3>
         <div className="trading-table-wrapper responsive-wrapper" style={{overflowX:'auto', background:'#fff', borderRadius: '12px', boxShadow:'0 0 10px rgba(0,0,0,0.08)', padding:'16px', marginTop:'12px', width:'100%'}}>
           {transactions.length === 0 ? (
-            <div style={{ color: '#888' }}>Koi trading income record nahi mila.</div>
+            <div style={{ color: 'transparent', height: '0px', overflow: 'hidden' }}></div>
           ) : (
             <table className="trading-income-table history-table" style={{minWidth:'600px', width:'100%', color:'#333', fontSize:'14px', borderCollapse:'collapse'}}>
               <thead className="bg-purple-600 text-white text-sm font-semibold" style={{background:'#6a0dad', color:'#fff'}}>
