@@ -17,7 +17,6 @@ import Team from './Team';
 import Layout from './Layout';
 import Earning from './Earning';
 import Staking from './Staking';
-import Reward from './Reward';
 import Report from './Report';
 import Support from './Support.jsx';
 
@@ -58,7 +57,6 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/staking" element={<Staking />} />
-          <Route path="/reward" element={<Reward />} />
           <Route path="/team" element={<Team />} />
           <Route path="/earning" element={<Earning />} />
           <Route path="/salary-income" element={<SalaryIncome />} />
