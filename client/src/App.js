@@ -10,7 +10,7 @@ import Dashboard from './Dashboard.js';
 import Trading from './Trading.js';
 import ReferralOnTrading from './ReferralOnTrading.js';
 import ReferralIncome from './ReferralIncome.js';
-import RewardIncomeUser from './RewardIncome.js';
+import RewardIncomeUser from './RewardIncomeSimple.js';
 import SalaryIncome from './SalaryIncome.js';
 import Team from './Team';
 import Layout from './Layout';
