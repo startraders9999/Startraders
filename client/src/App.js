@@ -64,7 +64,7 @@ const App = () => {
           <Route path="/salary-income" element={<SalaryIncome />} />
           <Route path="/trading" element={<Trading />} />
           <Route path="/trading-income" element={<Trading />} />
-          <Route path="/direct-referral-income" element={<ReferralIncome />} />
+          <Route path="/direct-referral-income" element={<Referral />} />
           <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
           <Route path="/reward-income" element={<RewardIncomeUser />} />
           <Route path="/withdrawal" element={<USDTWithdrawalPage />} />
