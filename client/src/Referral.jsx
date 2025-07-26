@@ -89,7 +89,7 @@ const Referral = () => {
             }}
             className="ml-2 bg-purple-600 text-white px-3 py-2 rounded text-sm"
           >
-            कॉपी करें
+            Copy Link
           </button>
         </div>
       </div>
