@@ -347,6 +347,13 @@ const RewardSettings = require('./models/rewardSettings');
 // Get reward settings
 app.get('/api/admin/reward-settings', async (req, res) => {
   try {
+    // Set no-cache headers
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     const settings = await RewardSettings.getSettings();
     res.json({ 
       success: true, 
