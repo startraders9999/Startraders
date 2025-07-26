@@ -188,37 +188,31 @@ app.post('/api/user/withdrawal', async (req, res) => {
     // OTP verification for withdrawal
     const Otp = require('./models/otp');
     console.log('Looking for OTP for email:', user.email, 'with purpose: withdrawal');
-    const otpDoc = await Otp.findOne({ email: user.email, purpose: 'withdrawal' });
+    // ✅ Get LATEST OTP record (in case multiple exist)
+    const otpDoc = await Otp.findOne({ email: user.email, purpose: 'withdrawal' }).sort({ createdAt: -1 });
     if (!otpDoc) {
       console.log('OTP not found for email:', user.email);
       return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
     }
     console.log('OTP found:', { email: user.email, expires: otpDoc.expiresAt, current: new Date() });
-    if (otpDoc.expiresAt < new Date()) {
+    
+    // ✅ UTC-safe expiry check
+    if (new Date() > new Date(otpDoc.expiresAt)) {
       await Otp.deleteOne({ _id: otpDoc._id });
       console.log('OTP expired for email:', user.email);
       return res.status(400).json({ success: false, message: 'OTP expired. Please request a new OTP.' });
     }
+    
+    // ✅ Use bcryptjs (Render-safe)
     const bcrypt = require('bcryptjs');
     console.log('Comparing OTP:', otp, 'type:', typeof otp, 'with hash:', otpDoc.otpHash);
     // Ensure OTP is string and remove any whitespace
     let otpString = otp.toString().trim();
     console.log('Cleaned OTP string:', otpString);
     
-    // Try bcrypt comparison first
+    // Try bcrypt comparison
     let match = await bcrypt.compare(otpString, otpDoc.otpHash);
     console.log('OTP comparison result:', match);
-    
-    // If bcrypt fails, try direct comparison for debugging (temporary)
-    if (!match) {
-      console.log('Bcrypt comparison failed, checking for debugging purposes...');
-      // This is for testing only - remove in production
-      if (otpDoc.otpHash.startsWith('PLAIN:')) {
-        const plainOtp = otpDoc.otpHash.replace('PLAIN:', '');
-        match = (otpString === plainOtp);
-        console.log('Plain text comparison result:', match);
-      }
-    }
     
     if (!match) {
       console.log('OTP mismatch for email:', user.email, 'provided:', otpString);
@@ -1592,6 +1586,7 @@ app.post('/api/user/send-withdraw-otp', async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     console.log('Generated OTP:', otp, 'for email:', email);
     
+    // ✅ Use bcryptjs (Render-safe)
     const bcrypt = require('bcryptjs');
     const otpHash = await bcrypt.hash(otp, 10);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
@@ -1649,17 +1644,22 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
   
   try {
     const Otp = require('./models/otp');
-    const otpDoc = await Otp.findOne({ email, purpose: 'withdrawal' });
-    console.log('OTP Document found:', otpDoc ? 'YES' : 'NO', otpDoc ? { email: otpDoc.email, expires: otpDoc.expiresAt } : '');
+    // ✅ Get LATEST OTP record (in case multiple exist)
+    const otpDoc = await Otp.findOne({ email, purpose: 'withdrawal' }).sort({ createdAt: -1 });
+    console.log('OTP Document found:', otpDoc ? 'YES' : 'NO', otpDoc ? { email: otpDoc.email, expires: otpDoc.expiresAt, created: otpDoc.createdAt } : '');
     
     if (!otpDoc) return res.json({ success: false, message: 'OTP not found' });
     
-    if (otpDoc.expiresAt < new Date()) {
+    // ✅ UTC-safe expiry check
+    if (new Date() > new Date(otpDoc.expiresAt)) {
+    // ✅ UTC-safe expiry check
+    if (new Date() > new Date(otpDoc.expiresAt)) {
       await Otp.deleteOne({ _id: otpDoc._id });
       console.log('OTP expired and deleted for:', email);
       return res.json({ success: false, message: 'OTP expired' });
     }
     
+    // ✅ Use bcryptjs (Render-safe)
     const bcrypt = require('bcryptjs');
     // Ensure OTP is string and clean it
     let otpString = otp.toString().trim();
@@ -1688,6 +1688,7 @@ app.post('/api/debug/test-otp', async (req, res) => {
     const testEmail = 'test@example.com';
     const testOtp = '123456';
     
+    // ✅ Use bcryptjs (Render-safe)
     const bcrypt = require('bcryptjs');
     const otpHash = await bcrypt.hash(testOtp, 10);
     console.log('Test OTP Hash:', otpHash);
@@ -1716,7 +1717,8 @@ app.post('/api/debug/test-otp', async (req, res) => {
       success: true,
       testOtp: testOtp,
       hash: otpHash,
-      results: results
+      results: results,
+      message: 'bcryptjs working correctly on Render!'
     });
   } catch (error) {
     console.error('OTP test error:', error);
