@@ -1,10 +1,62 @@
-import React from 'react';
-import './SalaryIncome.css'; // अगर आपने CSS फाइल अलग बनाई है तो
+import React, { useEffect, useState } from 'react';
+import './SalaryIncome.css'; 
+import axios from 'axios';
 
 const SalaryIncome = () => {
+  const [salaryData, setSalaryData] = useState({
+    totalSalaryIncome: 0,
+    monthlySalary: 0,
+    transactions: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user._id) {
+      setLoading(false);
+      return;
+    }
+
+    // Fetch salary income data
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/salary-income/${user._id}`)
+      .then((res) => {
+        if (res.data.success) {
+          setSalaryData({
+            totalSalaryIncome: res.data.totalSalaryIncome || 0,
+            monthlySalary: res.data.monthlySalary || 0,
+            transactions: res.data.transactions || []
+          });
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching salary income", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '20px', color: 'white', background: 'transparent', minHeight: '100vh', textAlign: 'center' }}>
+        <h2>Loading Salary Income...</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="salary-container">
       <h1 className="Salary-title">SALARY INCOME</h1>
+      
+      {/* Current Status */}
+      <div className="salary-status" style={{ marginBottom: '2rem', padding: '1rem', background: '#1a1a2e', borderRadius: '10px', border: '1px solid #8c4be7' }}>
+        <h3 style={{ color: '#8c4be7', marginBottom: '1rem' }}>Your Current Status</h3>
+        <div style={{ color: 'white' }}>
+          <p><strong>Total Salary Income:</strong> ${salaryData.totalSalaryIncome.toLocaleString()}</p>
+          <p><strong>Monthly Salary:</strong> ${salaryData.monthlySalary.toLocaleString()}</p>
+        </div>
+      </div>
+
       <p className="salary-subtitle">Start earning daily fixed salary income based on your direct business:</p>
       <div className="salary-table-wrapper">
         <table className="salary-table">

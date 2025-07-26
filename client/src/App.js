@@ -10,6 +10,8 @@ import Dashboard from './Dashboard.js';
 import Trading from './Trading.js';
 // import ReferralIncome from './ReferralIncome.js';
 import ReferralOnTrading from './ReferralOnTrading.js';
+import ReferralIncome from './ReferralIncome.js';
+import RewardIncomeUser from './RewardIncome.js';
 import SalaryIncome from './SalaryIncome.js';
 import Team from './Team';
 import Layout from './Layout';
@@ -61,6 +63,10 @@ const App = () => {
           <Route path="/earning" element={<Earning />} />
           <Route path="/salary-income" element={<SalaryIncome />} />
           <Route path="/trading" element={<Trading />} />
+          <Route path="/trading-income" element={<Trading />} />
+          <Route path="/direct-referral-income" element={<ReferralIncome />} />
+          <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
+          <Route path="/reward-income" element={<RewardIncomeUser />} />
           <Route path="/withdrawal" element={<USDTWithdrawalPage />} />
           <Route path="/report" element={<Report />} />
           <Route path="/support" element={<Support />} />

@@ -12,18 +12,18 @@ const ReferralIncome = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user._id) return;
 
-    // Fetch referral income data
+    // Fetch direct referral income data
     axios
-      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-income/${user._id}`)
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/direct-referral-income/${user._id}`)
       .then((res) => {
         if (res.data.success) {
           setReferralData(res.data.transactions || []);
-          setTotalReferralIncome(parseFloat(res.data.totalReferralIncome) || 0);
+          setTotalReferralIncome(parseFloat(res.data.totalDirectReferralIncome) || 0);
         }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching referral income", err);
+        console.error("Error fetching direct referral income", err);
         setLoading(false);
       });
   }, []);
@@ -49,7 +49,7 @@ const ReferralIncome = () => {
 
   return (
     <div style={{ padding: '20px', color: 'white', background: 'transparent', minHeight: '100vh' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Referral Income</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Direct Referral Income</h2>
 
       {/* Total Summary */}
       <div style={{ 

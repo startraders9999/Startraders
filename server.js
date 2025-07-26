@@ -911,7 +911,51 @@ async function calculateReferralIncomeOnTrading(userId, tradingAmount) {
   }
 }
 
-// ✅ API: Get Reward Income Data
+// ✅ API: Get Salary Income Data (placeholder)
+app.get('/api/user/salary-income/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // For now, return placeholder data
+    // You can implement actual salary income logic here
+    res.json({
+      success: true,
+      totalSalaryIncome: 0,
+      monthlySalary: 0,
+      transactions: []
+    });
+  } catch (error) {
+    console.error('Error fetching salary income:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch salary income' });
+  }
+});
+
+// ✅ API: Get Direct Referral Income Data
+app.get('/api/user/direct-referral-income/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const referralHistory = await Transaction.find({ 
+      toUser: userId, 
+      type: { $in: ['referral_on_deposit', 'referral_income'] }
+    }).populate('fromUser', 'name email').sort({ createdAt: -1 });
+    
+    const totalDirectReferralIncome = referralHistory.reduce((sum, transaction) => {
+      return sum + (transaction.amount || 0);
+    }, 0);
+    
+    res.json({ 
+      success: true, 
+      totalDirectReferralIncome: totalDirectReferralIncome.toFixed(2),
+      transactions: referralHistory
+    });
+  } catch (err) {
+    console.error('Direct referral income error:', err);
+    res.status(500).json({ success: false, message: "Failed to fetch direct referral income" });
+  }
+});
+
+// ✅ GET REWARD INCOME STATUS & AUTO-EXPIRE
 app.get('/api/user/reward-income', async (req, res) => {
   try {
     const { userId } = req.query;

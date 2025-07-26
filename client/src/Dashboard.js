@@ -133,11 +133,11 @@ const Dashboard = () => {
         <div className="dashboard-grid">
           <div className="grid-left">
             <div className="grid-row">
-              <div className="grid-box clickable" onClick={() => navigate('/trading')}>
+              <div className="grid-box clickable" onClick={() => navigate('/trading-income')}>
                 <FaChartLine style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
                 <span>TRADING INCOME</span><span>$0</span>
               </div>
-              <div className="grid-box clickable" onClick={() => navigate('/referral-income')}>
+              <div className="grid-box clickable" onClick={() => navigate('/direct-referral-income')}>
                 <FaUsers style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
                 <span>DIRECT REFERRAL INCOME</span><span>$0</span>
               </div>
@@ -147,7 +147,7 @@ const Dashboard = () => {
                 <FaExchangeAlt style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
                 <span>TRADING INCOME ON REFERRAL INCOME</span><span>$0</span>
               </div>
-              <div className="grid-box clickable" onClick={() => navigate('/reward')}>
+              <div className="grid-box clickable" onClick={() => navigate('/reward-income')}>
                 <FaGift style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
                 <span>REWARD INCOME</span><span>$0</span>
               </div>
@@ -175,7 +175,7 @@ const Dashboard = () => {
                 Available Funds<br />
                 ${availableFunds.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </div>
-              <div className="wallet-card" onClick={() => navigate('/referral-income')} style={{cursor:'pointer'}}>
+              <div className="wallet-card" onClick={() => navigate('/direct-referral-income')} style={{cursor:'pointer'}}>
                 <FaWallet className="wallet-icon" />
                 Referral Income<br />
                 ${referralIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
