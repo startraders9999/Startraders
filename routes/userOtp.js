@@ -36,15 +36,27 @@ router.post('/send-withdraw-otp', async (req, res) => {
 // Verify OTP for withdrawal
 router.post('/verify-withdraw-otp', async (req, res) => {
   try {
+    console.log('🟢 VERIFY ROUTE HIT: userOtp.js');
     const { email, otp } = req.body;
-    if (!email || !otp) return res.status(400).json({ message: 'Email and OTP required' });
+    console.log('📩 Body:', { email, otp });
+    if (!email || !otp) return res.status(400).json({ message: 'Email and OTP required - FROM userOtp.js' });
     const record = await Otp.findOne({ email, purpose: 'withdraw', expiresAt: { $gt: new Date() } }).sort({ createdAt: -1 });
-    if (!record) return res.status(400).json({ message: 'Invalid OTP' });
+    if (!record) {
+      console.log('❌ No OTP record found in userOtp.js');
+      return res.status(400).json({ message: 'Invalid OTP - FROM userOtp.js' });
+    }
+    console.log('🔐 OTP From DB (Hash):', record.otpHash);
     const valid = await bcrypt.compare(otp, record.otpHash);
-    if (!valid) return res.status(400).json({ message: 'Invalid OTP' });
-    res.json({ message: 'OTP Verified' });
+    console.log('🔁 Compare result (userOtp.js):', valid);
+    if (!valid) {
+      console.log('❌ OTP does not match (userOtp.js)');
+      return res.status(400).json({ message: 'Invalid OTP - FROM userOtp.js' });
+    }
+    console.log('✅ OTP verified (userOtp.js)');
+    res.json({ message: 'OTP Verified - FROM userOtp.js' });
   } catch (err) {
-    res.status(500).json({ message: 'Error verifying OTP' });
+    console.log('🔥 Error verifying OTP (userOtp.js):', err);
+    res.status(500).json({ message: 'Error verifying OTP - FROM userOtp.js' });
   }
 });
 
