@@ -11,6 +11,9 @@ export default function USDTWithdrawalPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpMsg, setOtpMsg] = useState('');
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpVerifyMsg, setOtpVerifyMsg] = useState('');
+  const [otpVerifying, setOtpVerifying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -44,32 +47,46 @@ export default function USDTWithdrawalPage() {
     setOtpLoading(false);
   };
 
-  // First verify OTP, then allow withdrawal
+  // OTP verify handler
+  const handleVerifyOtp = async () => {
+    setOtpVerifyMsg('');
+    setOtpVerifying(true);
+    setOtpVerified(false);
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const verifyRes = await axios.post('https://startraders-fullstack-9ayr.onrender.com/api/user/verify-withdraw-otp', {
+        email: user.email,
+        otp
+      });
+      if (verifyRes.data.message && verifyRes.data.message.toLowerCase().includes('verified')) {
+        setOtpVerified(true);
+        setOtpVerifyMsg('OTP Verified!');
+      } else {
+        setOtpVerified(false);
+        setOtpVerifyMsg(verifyRes.data.message || 'Invalid OTP');
+      }
+    } catch (err) {
+      setOtpVerified(false);
+      setOtpVerifyMsg(err.response?.data?.message || 'Invalid OTP');
+    }
+    setOtpVerifying(false);
+  };
+
+  // Withdrawal submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (walletAddress.trim() === '' || parseFloat(amount) < 10) {
-      setError('Please enter a valid wallet address and minimum $10 amount.');
+    if (!otpVerified) {
+      setError('Please verify OTP first.');
       return;
     }
-    if (!otp) {
-      setError('Please enter the OTP sent to your email.');
+    if (walletAddress.trim() === '' || parseFloat(amount) < 10) {
+      setError('Please enter a valid wallet address and minimum $10 amount.');
       return;
     }
     setLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      // 1. Verify OTP first
-      const verifyRes = await axios.post('https://startraders-fullstack-9ayr.onrender.com/api/user/verify-withdraw-otp', {
-        email: user.email,
-        otp
-      });
-      if (verifyRes.data.message !== 'OTP Verified') {
-        setError(verifyRes.data.message || 'Invalid OTP');
-        setLoading(false);
-        return;
-      }
-      // 2. Proceed with withdrawal
       const res = await axios.post('https://startraders-fullstack-9ayr.onrender.com/api/user/withdrawal', {
         userId: user._id,
         amount: parseFloat(amount),
@@ -82,6 +99,8 @@ export default function USDTWithdrawalPage() {
         setWalletAddress('');
         setOtp('');
         setOtpSent(false);
+        setOtpVerified(false);
+        setOtpVerifyMsg('');
       } else {
         setError(res.data.message || 'Failed to submit withdrawal request');
       }
@@ -154,8 +173,17 @@ export default function USDTWithdrawalPage() {
             >
               {otpLoading ? 'Sending...' : timer > 0 ? `Resend in ${timer}s` : 'Send OTP'}
             </button>
+            <button
+              type="button"
+              style={{background: otpVerified ? '#4caf50' : '#1976d2', color:'#fff',fontWeight:'600',fontSize:'1rem',border:'none',borderRadius:'8px',padding:'10px 16px',cursor:'pointer',minWidth:'110px'}}
+              onClick={handleVerifyOtp}
+              disabled={!otpSent || otpVerifying || !otp}
+            >
+              {otpVerifying ? 'Verifying...' : otpVerified ? 'Verified' : 'Verify OTP'}
+            </button>
           </div>
           {otpMsg && <div style={{color:'#00bcd4',marginBottom:'8px',fontWeight:'600'}}>{otpMsg}</div>}
+          {otpVerifyMsg && <div style={{color: otpVerified ? '#4caf50' : '#d32f2f',marginBottom:'8px',fontWeight:'600'}}>{otpVerifyMsg}</div>}
           <ul style={{color:'#8c52ff',fontSize:'0.98rem',marginBottom:'12px',textAlign:'left',fontWeight:'500'}}>
             <li>Minimum Withdrawal: $10</li>
             <li>Admin Charges: 5%</li>
@@ -164,8 +192,8 @@ export default function USDTWithdrawalPage() {
           {error && <div style={{color:'#d32f2f',marginBottom:'8px',fontWeight:'600'}}>{error}</div>}
           <button
             type="submit"
-            style={{width:'100%',background:'#8c52ff',color:'#fff',fontWeight:'600',fontSize:'1.1rem',border:'none',borderRadius:'8px',padding:'12px 0',marginBottom:'8px',cursor:'pointer'}}
-            disabled={loading}
+            style={{width:'100%',background: otpVerified ? '#8c52ff' : '#aaa',color:'#fff',fontWeight:'600',fontSize:'1.1rem',border:'none',borderRadius:'8px',padding:'12px 0',marginBottom:'8px',cursor: otpVerified ? 'pointer' : 'not-allowed'}}
+            disabled={loading || !otpVerified}
           >
             {loading ? 'Submitting...' : 'Submit'}
           </button>
