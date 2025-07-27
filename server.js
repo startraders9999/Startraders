@@ -1674,131 +1674,83 @@ app.post('/api/user/send-withdraw-otp', async (req, res) => {
 });
 
 app.post('/api/user/verify-withdraw-otp', async (req, res) => {
-  const { email, otp } = req.body;
-  
-  // 🚨 INSTANT DEBUG - Exact problem dikhaega
-  console.log('� VERIFY OTP DEBUG:', {
-    bodyReceived: !!req.body,
-    emailReceived: !!email,
-    emailValue: email,
-    otpReceived: !!otp,
-    otpValue: otp,
-    otpType: typeof otp,
-    fullBody: JSON.stringify(req.body)
-  });
-  
-  // 🚨 EXACT ERROR CHECK
-  if (!email) {
-    console.log('❌❌❌ EMAIL MISSING FROM FRONTEND ❌❌❌');
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Email missing from request',
-      debug: 'Frontend is not sending email properly'
-    });
-  }
-  
-  if (!otp) {
-    console.log('❌❌❌ OTP MISSING FROM FRONTEND ❌❌❌');
-    return res.status(400).json({ 
-      success: false, 
-      message: 'OTP missing from request',
-      debug: 'Frontend is not sending OTP properly'
-    });
-  }
-  
-  console.log('✅ Both email and OTP received properly');
-  
   try {
+    const { email, otp } = req.body;
+    
+    console.log('🔥 PRODUCTION OTP VERIFICATION START:', {
+      email,
+      otp,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Validation
+    if (!email || !otp) {
+      console.log('❌ Missing required fields:', { email: !!email, otp: !!otp });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and OTP are required'
+      });
+    }
+    
     const Otp = require('./models/otp');
     
-    // ✅ Clean old expired OTPs first
+    // Clean expired OTPs
     await Otp.deleteMany({ 
       email, 
       purpose: 'withdrawal',
       expiresAt: { $lt: new Date() }
     });
     
-    // ✅ Get LATEST valid OTP record
-    const otpDoc = await Otp.findOne({ 
+    // Find valid OTP
+    const otpEntry = await Otp.findOne({ 
       email, 
       purpose: 'withdrawal',
       expiresAt: { $gt: new Date() }
     }).sort({ createdAt: -1 });
     
-    console.log('📋 OTP Search Result:', {
-      searchEmail: email,
-      found: !!otpDoc,
-      otpDocEmail: otpDoc?.email,
-      expires: otpDoc?.expiresAt,
-      created: otpDoc?.createdAt,
-      timeLeft: otpDoc ? Math.round((new Date(otpDoc.expiresAt) - new Date()) / 1000) + 's' : 'N/A'
-    });
-    
-    if (!otpDoc) {
-      console.log('❌ No OTP found in database for email:', email);
+    if (!otpEntry) {
+      console.log('❌ No valid OTP found for:', email);
       return res.status(400).json({ 
         success: false, 
-        message: 'OTP not found. Please request a new OTP.',
-        debug: `No OTP record found for email: ${email}`
+        message: 'OTP not found or expired. Please request a new OTP.'
       });
     }
     
-    // ✅ Use bcryptjs (Render-safe) with proper string conversion
+    // 🚀 CRITICAL FIX: Use bcrypt.compare() for hashed OTP verification
     const bcrypt = require('bcryptjs');
+    const otpString = String(otp).trim();
     
-    // 🔧 Critical Fix: Ensure OTP is clean string (handle number/string/spaces)
-    let otpString = String(otp).trim();
-    
-    // 🔧 Additional validation: ensure it's 6 digits
-    if (!/^\d{6}$/.test(otpString)) {
-      console.log('❌ Invalid OTP format:', otpString);
-      return res.status(400).json({ 
-        success: false, 
-        message: 'OTP must be 6 digits',
-        debug: `Invalid format: ${otpString}`
-      });
-    }
-    
-    console.log('🔐 Comparing OTP:', { 
-      provided: otpString, 
-      providedLength: otpString.length,
-      hashExists: !!otpDoc.otpHash,
-      hashLength: otpDoc.otpHash?.length 
+    console.log('🔐 Verifying OTP with bcrypt.compare():', {
+      providedOtp: otpString,
+      hasStoredHash: !!otpEntry.otpHash
     });
     
-    // 🔧 Critical: Use bcryptjs compare with proper error handling
-    const match = await bcrypt.compare(otpString, otpDoc.otpHash);
-    console.log('✅ OTP Comparison Result:', match);
+    const isMatch = await bcrypt.compare(otpString, otpEntry.otpHash);
     
-    if (!match) {
-      console.log('❌ OTP MISMATCH:', { 
-        email, 
-        provided: otpString, 
-        timestamp: new Date().toISOString() 
-      });
+    if (!isMatch) {
+      console.log('❌ OTP verification failed - Hash mismatch');
       return res.status(400).json({ 
         success: false, 
-        message: 'Invalid OTP. Please check and try again.',
-        debug: 'OTP hash comparison failed'
+        message: 'Invalid OTP. Please check and try again.'
       });
     }
     
-    console.log('🎉 OTP VERIFIED SUCCESSFULLY for:', email);
+    console.log('✅ OTP VERIFIED SUCCESSFULLY!');
     
-    // ✅ Keep OTP for final withdrawal - don't delete yet
+    // Delete used OTP
+    await Otp.deleteOne({ _id: otpEntry._id });
+    
     res.status(200).json({ 
       success: true, 
-      message: 'OTP Verified Successfully',
-      timestamp: new Date().toISOString()
+      message: 'OTP verified successfully'
     });
     
   } catch (err) {
-    console.error('💥 OTP verify error:', err);
+    console.error('💥 OTP verification error:', err);
     res.status(500).json({ 
       success: false, 
-      message: 'OTP verification failed', 
-      error: err.message,
-      debug: 'Server error during verification'
+      message: 'Server error during OTP verification',
+      error: err.message
     });
   }
 });
