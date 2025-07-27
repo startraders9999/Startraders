@@ -1677,87 +1677,79 @@ app.post('/api/user/verify-withdraw-otp', async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-    console.log('🔥 FINAL VERIFIED CODE - OTP Verification Start:', { email, otp });
-
-    if (!email || !otp) {
-      console.log('❌ Missing fields:', { email: !!email, otp: !!otp });
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email और OTP दोनों ज़रूरी हैं।' 
-      });
-    }
+    console.log("📩 Body received:", { email, otp, otpType: typeof otp });
 
     // ✅ Use correct OTP model 
     const Otp = require('./models/otp');
 
-    // ✅ Find latest OTP for this email and withdrawal
     const latestOtp = await Otp.findOne({ 
       email, 
       purpose: 'withdrawal' 
     }).sort({ createdAt: -1 });
 
-    console.log('📋 OTP Search Result:', {
-      email,
-      found: !!latestOtp,
-      expires: latestOtp?.expiresAt,
-      timeLeft: latestOtp ? Math.round((new Date(latestOtp.expiresAt) - new Date()) / 1000) + 's' : 'N/A'
-    });
-
     if (!latestOtp) {
-      console.log('❌ No OTP found for email:', email);
+      console.log("❌ OTP not found in DB for email:", email);
       return res.status(400).json({ 
         success: false, 
-        message: 'OTP नहीं मिला।' 
+        message: "OTP not found" 
       });
     }
 
-    // ✅ Check expiry
+    console.log("🔐 OTP From DB (Hash):", latestOtp.otpHash);
+    console.log("🔢 OTP From Frontend:", otp);
+    console.log("⏳ Expires At:", latestOtp.expiresAt);
+    console.log("📆 Current Time:", new Date());
+    console.log("⏰ Time Left:", Math.round((new Date(latestOtp.expiresAt) - new Date()) / 1000) + " seconds");
+
     if (latestOtp.expiresAt < Date.now()) {
-      console.log('❌ OTP expired');
+      console.log("⚠️ OTP expired - DB time vs Current time");
       return res.status(400).json({ 
         success: false, 
-        message: 'OTP Expired हो चुका है।' 
+        message: "OTP expired" 
       });
     }
 
-    // ✅ Compare using bcrypt - MAIN FIX!
+    // 🔥 CRITICAL DEBUG: bcrypt.compare() with detailed logging
     const bcrypt = require('bcryptjs');
-    const otpString = String(otp).trim();
     
-    console.log('🔐 bcrypt.compare() attempt:', {
-      providedOtp: otpString,
-      hasHash: !!latestOtp.otpHash
+    console.log("🔍 Before bcrypt.compare():", {
+      frontendOtp: otp,
+      frontendOtpLength: String(otp).length,
+      dbHash: latestOtp.otpHash,
+      dbHashLength: latestOtp.otpHash.length
     });
+
+    const isMatch = await bcrypt.compare(String(otp), latestOtp.otpHash);
     
-    const isMatch = await bcrypt.compare(otpString, latestOtp.otpHash);
-    
-    console.log('🎯 bcrypt.compare() result:', isMatch);
+    console.log("🔁 Compare result:", isMatch);
+    console.log("🎯 bcrypt.compare('" + otp + "', '" + latestOtp.otpHash + "') = " + isMatch);
 
     if (!isMatch) {
-      console.log('❌ OTP verification failed - Hash mismatch');
+      console.log("❌ OTP does not match - Hash comparison failed");
       return res.status(400).json({ 
         success: false, 
-        message: 'Invalid OTP' 
+        message: "Invalid OTP" 
       });
     }
 
-    console.log('🎉 OTP VERIFIED SUCCESSFULLY!');
+    console.log("✅ OTP verified successfully!");
     
-    // ✅ Delete used OTP
+    // Delete used OTP
     await Otp.deleteOne({ _id: latestOtp._id });
-    console.log('🧹 Used OTP deleted');
+    console.log("🧹 Used OTP deleted from database");
 
     return res.status(200).json({ 
       success: true, 
-      message: 'OTP verified successfully' 
+      message: "OTP verified" 
     });
 
-  } catch (err) {
-    console.error('💥 OTP verification error:', err);
+  } catch (error) {
+    console.log("🔥 Error verifying OTP:", error.message);
+    console.error("💥 Full Error Stack:", error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Server error',
-      error: err.message
+      message: "Server error",
+      error: error.message
     });
   }
 });
