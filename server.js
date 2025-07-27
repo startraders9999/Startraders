@@ -181,45 +181,11 @@ const Withdrawal = require('./models/withdrawal');
 // User: Submit Withdrawal Request
 app.post('/api/user/withdrawal', async (req, res) => {
   try {
-    const { userId, amount, wallet, otp } = req.body;
+    const { userId, amount, wallet } = req.body;
     if (!userId || !amount || isNaN(amount)) return res.status(400).json({ success: false, message: 'Invalid data' });
     const user = await User.findById(userId);
     if (!user || user.balance < amount) return res.status(400).json({ success: false, message: 'Insufficient balance' });
-    // OTP verification for withdrawal
-    const Otp = require('./models/otp');
-    console.log('Looking for OTP for email:', user.email, 'with purpose: withdrawal');
-    // ✅ Get LATEST OTP record (in case multiple exist)
-    const otpDoc = await Otp.findOne({ email: user.email, purpose: 'withdrawal' }).sort({ createdAt: -1 });
-    if (!otpDoc) {
-      console.log('OTP not found for email:', user.email);
-      return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
-    }
-    console.log('OTP found:', { email: user.email, expires: otpDoc.expiresAt, current: new Date() });
-    
-    // ✅ UTC-safe expiry check
-    if (new Date() > new Date(otpDoc.expiresAt)) {
-      await Otp.deleteOne({ _id: otpDoc._id });
-      console.log('OTP expired for email:', user.email);
-      return res.status(400).json({ success: false, message: 'OTP expired. Please request a new OTP.' });
-    }
-    
-    // ✅ Use bcryptjs (Render-safe)
-    const bcrypt = require('bcryptjs');
-    console.log('Comparing OTP:', otp, 'type:', typeof otp, 'with hash:', otpDoc.otpHash);
-    // Ensure OTP is string and remove any whitespace
-    let otpString = otp.toString().trim();
-    console.log('Cleaned OTP string:', otpString);
-    
-    // Try bcrypt comparison
-    let match = await bcrypt.compare(otpString, otpDoc.otpHash);
-    console.log('OTP comparison result:', match);
-    
-    if (!match) {
-      console.log('OTP mismatch for email:', user.email, 'provided:', otpString);
-      return res.status(400).json({ success: false, message: 'Invalid OTP. Please check and try again.' });
-    }
-    // Delete OTP after successful verification
-    await Otp.deleteOne({ _id: otpDoc._id });
+    // OTP verification removed - already verified before submit
     user.balance -= amount;
     await user.save();
     const withdrawal = new Withdrawal({ userId, amount, wallet });
