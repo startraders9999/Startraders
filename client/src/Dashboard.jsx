@@ -4,6 +4,7 @@ import './Dashboard.css';
 import logo from './assets/logo.png';
 
 function Dashboard() {
+  const user = JSON.parse(localStorage.getItem('user'));
   return (
     <div className="dashboard-main-container">
       {/* Header - Polmax style, pink/purple background, small logo, STAR TRADER name */}
@@ -26,7 +27,11 @@ function Dashboard() {
       {/* Refer & Earn Section */}
       <div className="dashboard-section dashboard-refer-earn">
         <div className="dashboard-refer-title">Refer & Earn</div>
-        <input className="dashboard-refer-link" value="https://startraders.com/registration?ref=474181" readOnly />
+        <input
+          className="dashboard-refer-link"
+          value={`https://startraders-frontand.onrender.com/register?ref=${user?._id || ''}`}
+          readOnly
+        />
         <div className="dashboard-refer-socials">
           <button className="dashboard-social-btn">FB</button>
           <button className="dashboard-social-btn">WA</button>
