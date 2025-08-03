@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import DirectReferralStatus from './components/DirectReferralStatus';
+import { getDirectReferralStatus } from './api/directReferralStatus';
 import BoostingTimer from './BoostingTimer';
 import UniversalResponsiveLayout from './UniversalResponsiveLayout';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +32,9 @@ const Dashboard = () => {
   const [referralIncome, setReferralIncome] = useState(0);
   const [referralTradingIncome, setReferralTradingIncome] = useState(0);
   const [supportSettings, setSupportSettings] = useState({
+  // Direct referral status
+  const [directReferralActive, setDirectReferralActive] = useState(0);
+  const [directReferralInactive, setDirectReferralInactive] = useState(0);
     telegramSupportLink: 'https://t.me/startraderssupport',
     supportEmail: 'support@startraders.com',
     supportPhone: '+1234567890',
@@ -37,6 +42,11 @@ const Dashboard = () => {
   });
 
   React.useEffect(() => {
+    // Fetch direct referral status
+    getDirectReferralStatus(user._id).then(({active, inactive}) => {
+      setDirectReferralActive(active);
+      setDirectReferralInactive(inactive);
+    });
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -173,9 +183,12 @@ const Dashboard = () => {
                 <FaChartLine style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
                 <span>TRADING INCOME</span><span>$0</span>
               </div>
-              <div className="grid-box clickable" onClick={() => navigate('/direct-referral-income')}>
-                <FaUsers style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
-                <span>DIRECT REFERRAL INCOME</span><span>$0</span>
+              <div className="grid-box clickable" onClick={() => navigate('/direct-referral-income')} style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <FaUsers style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span>DIRECT REFERRAL INCOME</span>
+                </div>
+                <DirectReferralStatus activeCount={directReferralActive} inactiveCount={directReferralInactive} />
               </div>
             </div>
             <div className="grid-row">
