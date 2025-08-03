@@ -1,3 +1,10 @@
+
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+const Deposit = require('../models/deposit');
+const Transaction = require('../models/transaction');
+
 // GET /api/user/direct-referral-status/:userId
 router.get('/api/user/direct-referral-status/:userId', async (req, res) => {
   try {
@@ -8,7 +15,6 @@ router.get('/api/user/direct-referral-status/:userId', async (req, res) => {
       return res.json({ success: true, activeCount: 0, inactiveCount: 0 });
     }
     // Find deposits for these users
-    const Deposit = require('../models/deposit');
     const deposits = await Deposit.find({ userId: { $in: directRefs.map(u => u._id) } });
     const depositMap = {};
     deposits.forEach(dep => { depositMap[dep.userId.toString()] = dep; });
@@ -27,11 +33,6 @@ router.get('/api/user/direct-referral-status/:userId', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch direct referral status' });
   }
 });
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user');
-const Deposit = require('../models/deposit');
-const Transaction = require('../models/transaction');
 
 // GET /api/user/referral-overview/:userId
 router.get('/api/user/referral-overview/:userId', async (req, res) => {
