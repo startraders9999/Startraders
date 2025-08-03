@@ -31,10 +31,10 @@ const Dashboard = () => {
   const [availableFunds, setAvailableFunds] = useState(0);
   const [referralIncome, setReferralIncome] = useState(0);
   const [referralTradingIncome, setReferralTradingIncome] = useState(0);
-  const [supportSettings, setSupportSettings] = useState({
   // Direct referral status
   const [directReferralActive, setDirectReferralActive] = useState(0);
   const [directReferralInactive, setDirectReferralInactive] = useState(0);
+  const [supportSettings, setSupportSettings] = useState({
     telegramSupportLink: 'https://t.me/startraderssupport',
     supportEmail: 'support@startraders.com',
     supportPhone: '+1234567890',
