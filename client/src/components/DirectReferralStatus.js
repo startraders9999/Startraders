@@ -1,14 +1,14 @@
 import React from 'react';
 
 const DirectReferralStatus = ({ activeCount = 0, inactiveCount = 0 }) => (
-  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',marginTop:'8px'}}>
-    <div style={{flex:1,textAlign:'center',background:'#e6ffe6',color:'#2e7d32',padding:'6px 0',borderRadius:'8px',fontWeight:600,marginRight:'6px'}}>
+  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',marginTop:'4px'}}>
+    <div style={{flex:1,textAlign:'center',background:'#e6ffe6',color:'#2e7d32',padding:'2px 0',borderRadius:'6px',fontWeight:600,marginRight:'4px',fontSize:'0.95rem'}}>
       Active Members<br />
-      <span style={{fontSize:'1.3rem',fontWeight:700}}>{activeCount}</span>
+      <span style={{fontSize:'1.05rem',fontWeight:700}}>{activeCount}</span>
     </div>
-    <div style={{flex:1,textAlign:'center',background:'#ffeaea',color:'#c62828',padding:'6px 0',borderRadius:'8px',fontWeight:600,marginLeft:'6px'}}>
+    <div style={{flex:1,textAlign:'center',background:'#ffeaea',color:'#c62828',padding:'2px 0',borderRadius:'6px',fontWeight:600,marginLeft:'4px',fontSize:'0.95rem'}}>
       Inactive Members<br />
-      <span style={{fontSize:'1.3rem',fontWeight:700}}>{inactiveCount}</span>
+      <span style={{fontSize:'1.05rem',fontWeight:700}}>{inactiveCount}</span>
     </div>
   </div>
 );

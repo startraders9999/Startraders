@@ -42,11 +42,13 @@ const Dashboard = () => {
   });
 
   React.useEffect(() => {
-    // Fetch direct referral status
-    getDirectReferralStatus(user._id).then(({active, inactive}) => {
-      setDirectReferralActive(active);
-      setDirectReferralInactive(inactive);
-    });
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user._id) {
+      getDirectReferralStatus(user._id).then(({active, inactive}) => {
+        setDirectReferralActive(active);
+        setDirectReferralInactive(inactive);
+      });
+    }
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
