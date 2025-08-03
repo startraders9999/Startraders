@@ -1,3 +1,32 @@
+// GET /api/user/direct-referral-status/:userId
+router.get('/api/user/direct-referral-status/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    // Find all direct referrals (level 1)
+    const directRefs = await User.find({ referredBy: userId });
+    if (!directRefs.length) {
+      return res.json({ success: true, activeCount: 0, inactiveCount: 0 });
+    }
+    // Find deposits for these users
+    const Deposit = require('../models/deposit');
+    const deposits = await Deposit.find({ userId: { $in: directRefs.map(u => u._id) } });
+    const depositMap = {};
+    deposits.forEach(dep => { depositMap[dep.userId.toString()] = dep; });
+    let activeCount = 0;
+    let inactiveCount = 0;
+    directRefs.forEach(u => {
+      const idStr = u._id.toString();
+      if (depositMap[idStr] && depositMap[idStr].status === 'approved') {
+        activeCount++;
+      } else {
+        inactiveCount++;
+      }
+    });
+    res.json({ success: true, activeCount, inactiveCount });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch direct referral status' });
+  }
+});
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
