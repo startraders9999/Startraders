@@ -6,6 +6,19 @@ export default function USDTWithdrawalPage() {
   // Load wallet address from localStorage if available
   const [walletAddress, setWalletAddress] = useState(localStorage.getItem('savedWalletAddress') || '');
   const [addressSaved, setAddressSaved] = useState(!!localStorage.getItem('savedWalletAddress'));
+
+  // Auto-update wallet address if user connects a new wallet in Login.jsx
+  React.useEffect(() => {
+    const syncWalletAddress = () => {
+      const addr = localStorage.getItem('savedWalletAddress') || '';
+      setWalletAddress(addr);
+      setAddressSaved(!!addr);
+    };
+    window.addEventListener('storage', syncWalletAddress);
+    // Also check on mount
+    syncWalletAddress();
+    return () => window.removeEventListener('storage', syncWalletAddress);
+  }, []);
   const [amount, setAmount] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);

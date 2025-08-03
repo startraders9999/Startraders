@@ -62,6 +62,8 @@ function Login() {
       setWalletConnected(true);
       setWalletAddress(accounts[0]);
       setWalletError('');
+      // Save wallet address for withdrawal page
+      localStorage.setItem('savedWalletAddress', accounts[0]);
     } catch (err) {
       if (showPopup) setWalletError('Wallet connection failed.');
       setWalletConnected(false);
@@ -79,9 +81,11 @@ function Login() {
         if (accounts.length > 0) {
           setWalletConnected(true);
           setWalletAddress(accounts[0]);
+          localStorage.setItem('savedWalletAddress', accounts[0]);
         } else {
           setWalletConnected(false);
           setWalletAddress('');
+          localStorage.removeItem('savedWalletAddress');
         }
       };
       const handleChainChanged = (chainId) => {
