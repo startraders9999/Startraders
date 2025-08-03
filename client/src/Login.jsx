@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from './api';
 import './login.css';
@@ -37,12 +37,69 @@ function Login() {
     }
   };
 
-  // Wallet connect button logic
+  // Wallet connect logic
   const [walletConnected, setWalletConnected] = useState(false);
-  const handleWalletConnect = () => {
-    setWalletConnected(true);
-    alert('Connected');
+  const [walletError, setWalletError] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+
+  // Connect to wallet (MetaMask/Trust Wallet)
+  const connectWallet = async (showPopup = true) => {
+    if (!window.ethereum) {
+      setWalletError('No wallet found. Please install MetaMask or Trust Wallet.');
+      return;
+    }
+    try {
+      // Request BNB Smart Chain (mainnet)
+      const bnbChainId = '0x38';
+      if (window.ethereum.networkVersion !== '56' && window.ethereum.chainId !== bnbChainId) {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: bnbChainId }],
+        });
+      }
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      setWalletConnected(true);
+      setWalletAddress(accounts[0]);
+      setWalletError('');
+    } catch (err) {
+      if (showPopup) setWalletError('Wallet connection failed.');
+      setWalletConnected(false);
+    }
   };
+
+  // Auto-connect on page load
+  useEffect(() => {
+    if (!walletConnected && window.ethereum) {
+      connectWallet(false);
+    }
+    // Listen for account/network changes
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+          setWalletConnected(true);
+          setWalletAddress(accounts[0]);
+        } else {
+          setWalletConnected(false);
+          setWalletAddress('');
+        }
+      };
+      const handleChainChanged = (chainId) => {
+        if (chainId !== '0x38') {
+          setWalletError('Please switch to BNB Smart Chain.');
+          setWalletConnected(false);
+        } else {
+          setWalletError('');
+        }
+      };
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      };
+    }
+  }, [walletConnected]);
 
   return (
     <div className="login-container">
@@ -81,9 +138,10 @@ function Login() {
           <span role="img" aria-label="lock">🔒</span> Forgot your password?
         </a>
         <div className="login-divider">Sign in with Connect Wallet</div>
-        <button className="login-wallet-btn" onClick={handleWalletConnect} disabled={walletConnected}>
-          <span role="img" aria-label="wallet">💳</span> {walletConnected ? 'Connected' : 'Connect Wallet'}
+        <button className="login-wallet-btn" onClick={() => connectWallet(true)} disabled={walletConnected}>
+          <span role="img" aria-label="wallet">💳</span> {walletConnected ? `Connected${walletAddress ? ' (' + walletAddress.slice(0,6) + '...' + walletAddress.slice(-4) + ')' : ''}` : 'Connect Wallet'}
         </button>
+        {walletError && <div style={{color:'red',marginTop:8}}>{walletError}</div>}
         <div className="login-signup">
           Don't have an account?
           <a href="/register" className="login-signup-btn"> Sign Up</a>
