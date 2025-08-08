@@ -2065,5 +2065,5 @@ app.listen(PORT, () => {
 });
 
 // Offer image upload route
-const offerRouter = require('./routes/offer');
+const offerRouter = require('./server/routes/offer');
 app.use(offerRouter);
