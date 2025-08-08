@@ -6,13 +6,6 @@ import USDTWithdrawalPage from './USDTWithdrawalPage';
 import ForgotPassword from './ForgotPassword.jsx';
 import USDTDepositpage from './USDTDepositpage';
 import Login from './Login.jsx';
-import React from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';  
-
-import USDTWithdrawalPage from './USDTWithdrawalPage';
-import ForgotPassword from './ForgotPassword.jsx';
-import USDTDepositpage from './USDTDepositpage';
-import Login from './Login.jsx';
 import Register from './Register.jsx';
 import Dashboard from './Dashboard.js';
 import Trading from './Trading.js';
@@ -29,6 +22,7 @@ import Support from './Support.jsx';
 
 // Error Boundary and API Status Checker
 import ErrorBoundary, { APIStatusChecker } from './components/ErrorBoundary';
+
 
 // ✅ Admin pages
 import ProtectedAdminLayout from './admin/ProtectedAdminLayout';
@@ -54,15 +48,14 @@ import TransactionHistory from './TransactionHistory.jsx';
 // Old sidebar and hamburger menu imports removed if present
 import Referral from './Referral.jsx';
 
-// --- Offer Popup Logic Start ---
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
 const App = () => {
+  // Offer popup logic
   const [showPopup, setShowPopup] = useState(false);
   const [offerImage, setOfferImage] = useState('');
 
   useEffect(() => {
+    // Simulate user login event
+    // Replace with actual login logic
     const isLoggedIn = true;
     if (isLoggedIn) {
       axios.get('/api/offer').then(res => {
@@ -101,7 +94,6 @@ const App = () => {
       </div>
     </div>
   );
-// --- Offer Popup Logic End ---
 
   return (
     <ErrorBoundary>
@@ -166,3 +158,6 @@ const App = () => {
       </div>
     </ErrorBoundary>
   );
+};
+
+export default App;
