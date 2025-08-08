@@ -58,7 +58,7 @@ const App = () => {
     // Replace with actual login logic
     const isLoggedIn = true;
     if (isLoggedIn) {
-      axios.get('/api/offer').then(res => {
+      axios.get('/api/offer/image').then(res => {
         if (res.data.imageUrl) {
           setOfferImage(res.data.imageUrl);
           setShowPopup(true);
