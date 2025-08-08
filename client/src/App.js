@@ -55,11 +55,10 @@ const App = () => {
   const [offerImage, setOfferImage] = useState('');
 
   useEffect(() => {
-    // Simulate user login event
-    // Replace with actual login logic
-    const isLoggedIn = true; 
+    // Actual login check: localStorage token
+    const isLoggedIn = !!localStorage.getItem('token');
     if (isLoggedIn) {
-  axios.get('/api/offer/image').then(res => {
+      axios.get('/api/offer/image').then(res => {
         if (res.data.imageUrl) {
           setOfferImage(res.data.imageUrl);
           setShowPopup(true);
