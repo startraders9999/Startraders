@@ -26,9 +26,9 @@ const OfferSettings = () => {
     const formData = new FormData();
     formData.append('image', image);
     // Cloudinary upload
-    const cloudinaryRes = await axios.post('https://api.cloudinary.com/v1_1/<cloud_name>/image/upload', formData, {
+    const cloudinaryRes = await axios.post('https://api.cloudinary.com/v1_1/dzwmz3nag/image/upload', formData, {
       params: {
-        upload_preset: '<upload_preset>'
+        upload_preset: 'startraders'
       }
     });
     const imageUrl = cloudinaryRes.data.secure_url;
