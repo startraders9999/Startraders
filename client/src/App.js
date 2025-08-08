@@ -136,31 +136,73 @@ const App = () => {
             <Route path="analytics" element={<Analytics />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="support" element={<AdminSupport />} />
-            <Route path="trading-income" element={<TradingIncome />} />
-            <Route path="referral-settings" element={<ReferralSettingsAdmin />} />
-          </Route>
-
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/deposit" element={<USDTDepositpage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/trading" element={<Trading />} />
-          {/* Referral Dashboard: All referral routes point to Referral.jsx */}
-          <Route path="/referral-income" element={<Referral />} />
-          <Route path="/referral" element={<Referral />} />
-          <Route path="/dashboard/referral" element={<Referral />} />
-          {/* Referral on trading income */}
-          <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
-          <Route path="/salary-income" element={<SalaryIncome />} />
-
-          {/* Home and 404 */}
-          <Route path="/" element={<Login />} />
-          <Route path="*" element={<h1 style={{ color: 'white' }}>Page Not Found</h1>} />
-        </Routes>
-      </div>
-    </ErrorBoundary>
-  );
+              return (
+            <ErrorBoundary>
+              <APIStatusChecker>
+                <Routes>
+                  {/* User routes */}
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="register" element={<Register />} />
+                    <Route path="forgot-password" element={<ForgotPassword />} />
+                    <Route path="deposit" element={<USDTDepositpage />} />
+                    <Route path="withdrawal" element={<USDTWithdrawalPage />} />
+                    <Route path="referral" element={<Referral />} />
+                    <Route path="reward-income" element={<RewardIncomeUser />} />
+                    <Route path="salary-income" element={<SalaryIncome />} />
+                    <Route path="team" element={<Team />} />
+                    <Route path="trading" element={<Trading />} />
+                    <Route path="referral-on-trading" element={<ReferralOnTrading />} />
+                    <Route path="referral-income" element={<ReferralIncome />} />
+                    <Route path="staking" element={<Staking />} />
+                    <Route path="earning" element={<Earning />} />
+                    <Route path="report" element={<Report />} />
+                    <Route path="support" element={<Support />} />
+                    <Route path="transaction-history" element={<TransactionHistory />} />
+                  </Route>
+                  {/* Admin routes */}
+                  <Route path="/admin" element={<ProtectedAdminLayout />}>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="deposits" element={<Deposits />} />
+                    <Route path="withdrawals" element={<Withdrawals />} />
+                    <Route path="reward-income" element={<AdminRewardIncome />} />
+                    <Route path="boosting" element={<Boosting />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="analytics" element={<Analytics />} />
+                    <Route path="transactions" element={<Transactions />} />
+                    <Route path="support" element={<AdminSupport />} />
+                    <Route path="login" element={<AdminLogin />} />
+                    <Route path="trading-income" element={<TradingIncome />} />
+                    <Route path="referral-settings" element={<ReferralSettingsAdmin />} />
+                    <Route path="users/:id" element={<UserDetail />} />
+                    <Route path="offer-settings" element={<OfferSettings />} />
+                  </Route>
+                  <Route path="/admin-login" element={<AdminLogin />} />
+                  <Route path="/deposit" element={<USDTDepositpage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/trading" element={<Trading />} />
+                  {/* Referral Dashboard: All referral routes point to Referral.jsx */}
+                  <Route path="/referral-income" element={<Referral />} />
+                  <Route path="/referral" element={<Referral />} />
+                  <Route path="/dashboard/referral" element={<Referral />} />
+                  {/* Referral on trading income */}
+                  <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
+                  <Route path="/salary-income" element={<SalaryIncome />} />
+                  {/* Home and 404 */}
+                  <Route path="/" element={<Login />} />
+                  <Route path="*" element={<h1 style={{ color: 'white' }}>Page Not Found</h1>} />
+                </Routes>
+                {showPopup && offerImage && (
+                  <OfferPopup imageUrl={offerImage} onClose={() => setShowPopup(false)} />
+                )}
+              </APIStatusChecker>
+            </ErrorBoundary>
+              );
+  // ...existing code...
 };
 
 export default App;
