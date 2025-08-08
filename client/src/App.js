@@ -60,15 +60,20 @@ const App = () => {
     // Poll for token in localStorage every 1s
     const interval = setInterval(() => {
       const t = localStorage.getItem('token') || '';
-      if (t !== token) setToken(t);
+      if (t !== token) {
+        console.log('🟢 Token localStorage me badla (Hindi):', t);
+        setToken(t);
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [token]);
 
   useEffect(() => {
+    console.log('🔍 useEffect [token] trigger hua (Hindi), token:', token);
     if (token) {
       console.log('🟢 Token mil gaya, ab offer image API call karenge (Hindi)');
       import('./api').then(({ default: API }) => {
+        console.log('🔗 API instance import ho gaya (Hindi)');
         API.get('/offer/image')
           .then(res => {
             console.log('🟢 Offer image API response (Hindi):', res.data);
@@ -84,6 +89,8 @@ const App = () => {
             console.error('❌ Offer image API call fail hua (Hindi):', err);
           });
       });
+    } else {
+      console.log('🔴 Token nahi mila, popup logic skip (Hindi)');
     }
   }, [token]);
 
