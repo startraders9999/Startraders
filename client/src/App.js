@@ -104,24 +104,22 @@ const App = () => {
           <OfferPopup imageUrl={offerImage} onClose={() => setShowPopup(false)} />
         )}
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="staking" element={<Staking />} />
-            <Route path="team" element={<Team />} />
-            <Route path="earning" element={<Earning />} />
-            <Route path="salary-income" element={<SalaryIncome />} />
-            <Route path="trading" element={<Trading />} />
-            <Route path="trading-income" element={<Trading />} />
-            <Route path="direct-referral-income" element={<Referral />} />
-            <Route path="referral-on-trading" element={<ReferralOnTrading />} />
-            <Route path="referral-income" element={<ReferralIncome />} />
-            <Route path="reward-income" element={<RewardIncomeUser />} />
-            <Route path="withdrawal" element={<USDTWithdrawalPage />} />
-            <Route path="report" element={<Report />} />
-            <Route path="support" element={<Support />} />
-            <Route path="transactions" element={<TransactionHistory />} />
-          </Route>
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/staking" element={<Staking />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/earning" element={<Earning />} />
+          <Route path="/salary-income" element={<SalaryIncome />} />
+          <Route path="/trading" element={<Trading />} />
+          <Route path="/trading-income" element={<Trading />} />
+          <Route path="/direct-referral-income" element={<Referral />} />
+          <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
+          <Route path="/referral-income" element={<ReferralIncome />} />
+          <Route path="/reward-income" element={<RewardIncomeUser />} />
+          <Route path="/withdrawal" element={<USDTWithdrawalPage />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/transactions" element={<TransactionHistory />} />
           <Route path="/admin" element={<ProtectedAdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<Users />} />
