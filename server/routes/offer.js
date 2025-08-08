@@ -14,9 +14,8 @@ let currentOffer = { imageUrl: '' };
 
 // Get current offer
 router.get('/api/offer/image', async (req, res) => {
-  res.json(currentOffer);
-  const offer = currentOffer; // Using the mock database
-  res.json({ imageUrl: offer ? offer.imageUrl : '' });
+  // Only send one JSON response with imageUrl
+  res.json({ imageUrl: currentOffer.imageUrl || '' });
 });
 
 // Update offer image
