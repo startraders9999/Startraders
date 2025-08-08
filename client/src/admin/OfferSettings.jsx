@@ -9,7 +9,7 @@ const OfferSettings = () => {
 
   useEffect(() => {
     // Fetch current offer image
-    axios.get('/api/offer').then(res => {
+  axios.get('/api/offer/image').then(res => {
       setCurrentOffer(res.data.imageUrl);
     });
   }, []);
@@ -33,7 +33,7 @@ const OfferSettings = () => {
     });
     const imageUrl = cloudinaryRes.data.secure_url;
     // Save image URL to backend
-    await axios.post('/api/offer', { imageUrl });
+  await axios.post('/api/offer/image', { image: imageUrl });
     setCurrentOffer(imageUrl);
     setLoading(false);
     setImage(null);
