@@ -53,11 +53,19 @@ const App = () => {
   // Offer popup logic
   const [showPopup, setShowPopup] = useState(false);
   const [offerImage, setOfferImage] = useState('');
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   useEffect(() => {
-    // Actual login check: localStorage token
-    const isLoggedIn = !!localStorage.getItem('token');
-    if (isLoggedIn) {
+    // Listen for token changes in localStorage
+    const handleStorage = () => {
+      setToken(localStorage.getItem('token') || '');
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  useEffect(() => {
+    if (token) {
       axios.get('/api/offer/image').then(res => {
         if (res.data.imageUrl) {
           setOfferImage(res.data.imageUrl);
@@ -65,7 +73,7 @@ const App = () => {
         }
       });
     }
-  }, []);
+  }, [token]);
 
   const OfferPopup = ({ imageUrl, onClose }) => (
     <div style={{
