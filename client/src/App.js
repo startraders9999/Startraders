@@ -20,6 +20,8 @@ import Staking from './Staking';
 import Report from './Report';
 import Support from './Support.jsx';
 
+import OfferSettings from './admin/OfferSettings.jsx';
+
 // Error Boundary and API Status Checker
 import ErrorBoundary, { APIStatusChecker } from './components/ErrorBoundary';
 
@@ -86,47 +88,48 @@ const App = () => {
         padding: 20,
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
         position: 'relative',
-        maxWidth: 350,
-        width: '90%'
-      }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: 10, right: 10, background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button>
-        <img src={imageUrl} alt="Offer" style={{ width: '100%', borderRadius: 6 }} />
-      </div>
-    </div>
-  );
-
-  return (
-    <ErrorBoundary>
-      <APIStatusChecker />
-      <div>
-        {showPopup && offerImage && (
-          <OfferPopup imageUrl={offerImage} onClose={() => setShowPopup(false)} />
-        )}
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/staking" element={<Staking />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/earning" element={<Earning />} />
-            <Route path="/salary-income" element={<SalaryIncome />} />
-            <Route path="/trading" element={<Trading />} />
-            <Route path="/trading-income" element={<Trading />} />
-            <Route path="/direct-referral-income" element={<Referral />} />
-            <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
-            <Route path="/reward-income" element={<RewardIncomeUser />} />
-            <Route path="/withdrawal" element={<USDTWithdrawalPage />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/transactions" element={<TransactionHistory />} />
-          </Route>
-
-          <Route path="/admin" element={<ProtectedAdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="user/:id" element={<UserDetail />} />
-            <Route path="deposits" element={<Deposits />} />
-            <Route path="withdrawals" element={<Withdrawals />} />
-            <Route path="reward-income" element={<AdminRewardIncome />} />
+        return (
+          <ErrorBoundary>
+            <APIStatusChecker>
+              <Routes>
+                {/* User routes */}
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="login" element={<Login />} />
+                  <Route path="register" element={<Register />} />
+                  <Route path="forgot-password" element={<ForgotPassword />} />
+                  <Route path="deposit" element={<USDTDepositpage />} />
+                  <Route path="withdrawal" element={<USDTWithdrawalPage />} />
+                  <Route path="referral" element={<Referral />} />
+                  <Route path="reward-income" element={<RewardIncomeUser />} />
+                  <Route path="salary-income" element={<SalaryIncome />} />
+                  <Route path="team" element={<Team />} />
+                  <Route path="trading" element={<Trading />} />
+                  <Route path="referral-on-trading" element={<ReferralOnTrading />} />
+                  <Route path="referral-income" element={<ReferralIncome />} />
+                  <Route path="staking" element={<Staking />} />
+                  <Route path="earning" element={<Earning />} />
+                  <Route path="report" element={<Report />} />
+                  <Route path="support" element={<Support />} />
+                  <Route path="transaction-history" element={<TransactionHistory />} />
+                </Route>
+                {/* Admin routes */}
+                <Route path="/admin" element={<ProtectedAdminLayout />}>
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="deposits" element={<Deposits />} />
+                  <Route path="withdrawals" element={<Withdrawals />} />
+                  <Route path="reward-income" element={<AdminRewardIncome />} />
+                  <Route path="boosting" element={<Boosting />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="analytics" element={<Analytics />} />
+                  <Route path="transactions" element={<Transactions />} />
+                  <Route path="support" element={<AdminSupport />} />
+                  <Route path="login" element={<AdminLogin />} />
+                  <Route path="trading-income" element={<TradingIncome />} />
+                  <Route path="referral-settings" element={<ReferralSettingsAdmin />} />
+                  <Route path="users/:id" element={<UserDetail />} />
+                  <Route path="offer-settings" element={<OfferSettings />} />
             <Route path="boosting" element={<BoostingControl />} />
             <Route path="offline-gateway" element={<OfflineGateway />} />
             <Route path="settings" element={<Settings />} />

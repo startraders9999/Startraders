@@ -21,6 +21,7 @@ const ProtectedAdminLayout = () => {
           <li><Link to="/admin/withdrawals"> Withdrawals</Link></li>
           <li><Link to="/admin/reward-income"> Reward Income</Link></li>
           <li><Link to="/admin/boosting"> Boosting</Link></li>
+          <li><Link to="/admin/offer-settings"> Offer Settings</Link></li>
           <li><Link to="/admin/offline-gateway"> Offline Gateway</Link></li>
           <li><Link to="/admin/settings"> Settings</Link></li>
           <li><Link to="/admin/analytics"> Analytics</Link></li>
