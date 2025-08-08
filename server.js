@@ -2065,5 +2065,19 @@ app.listen(PORT, () => {
 });
 
 // Offer image upload route
-const offerRouter = require('./server/routes/offer');
-app.use(offerRouter);
+try {
+  const offerRouter = require('./server/routes/offer');
+  app.use(offerRouter);
+} catch (e1) {
+  try {
+    const offerRouter = require('./routes/offer');
+    app.use(offerRouter);
+  } catch (e2) {
+    try {
+      const offerRouter = require('./src/routes/offer');
+      app.use(offerRouter);
+    } catch (e3) {
+      console.error('Offer route not found in any known path');
+    }
+  }
+}
