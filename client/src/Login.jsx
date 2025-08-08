@@ -22,6 +22,10 @@ function Login() {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         if (res.data.token) {
           localStorage.setItem('token', res.data.token);
+          console.log('✅ Login ke baad token localStorage me set hua (Hindi):', res.data.token);
+          console.log('✅ localStorage.getItem("token") (Hindi):', localStorage.getItem('token'));
+        } else {
+          console.log('❌ Login response me token nahi mila (Hindi)');
         }
         if (remember) {
           localStorage.setItem('savedEmail', email);
