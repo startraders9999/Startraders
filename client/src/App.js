@@ -55,14 +55,15 @@ const App = () => {
   const [offerImage, setOfferImage] = useState('');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
+
   useEffect(() => {
-    // Listen for token changes in localStorage
-    const handleStorage = () => {
-      setToken(localStorage.getItem('token') || '');
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+    // Poll for token in localStorage every 1s
+    const interval = setInterval(() => {
+      const t = localStorage.getItem('token') || '';
+      if (t !== token) setToken(t);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   useEffect(() => {
     if (token) {
