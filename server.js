@@ -2051,19 +2051,6 @@ app.post('/api/debug/instant-otp-test', async (req, res) => {
   }
 });
 
-// Serve React frontend (production build)
-const clientBuildPath = path.join(__dirname, 'client', 'build');
-// Always enable SPA fallback so refresh/direct route never gives Not Found
-app.use(express.static(clientBuildPath));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(clientBuildPath, 'index.html'));
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
-
 // Offer image upload route
 try {
   const offerRouter = require('./server/routes/offer');
@@ -2081,3 +2068,15 @@ try {
     }
   }
 }
+
+// Serve React frontend (production build) - must be LAST
+const clientBuildPath = path.join(__dirname, 'client', 'build');
+app.use(express.static(clientBuildPath));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
