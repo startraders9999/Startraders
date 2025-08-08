@@ -46,8 +46,9 @@ import TradingIncome from './admin/TradingIncome';
 import ReferralSettingsAdmin from './admin/ReferralSettings';
 import TransactionHistory from './TransactionHistory.jsx';
 // import logo from './assets/logo.png';
-// Old sidebar and hamburger menu imports removed if present
 import Referral from './Referral.jsx';
+
+import OfferSettings from './admin/OfferSettings.jsx';
 
 const App = () => {
   // Offer popup logic
