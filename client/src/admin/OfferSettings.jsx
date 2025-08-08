@@ -24,7 +24,7 @@ const OfferSettings = () => {
     if (!image) return;
     setLoading(true);
     const formData = new FormData();
-    formData.append('image', image);
+  formData.append('file', image);
     try {
       // Cloudinary upload
       const cloudinaryRes = await axios.post('https://api.cloudinary.com/v1_1/dzwmz3nag/image/upload', formData, {
