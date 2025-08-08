@@ -128,6 +128,7 @@ const App = () => {
             <Route path="withdrawals" element={<Withdrawals />} />
             <Route path="reward-income" element={<AdminRewardIncome />} />
             <Route path="boosting" element={<BoostingControl />} />
+            <Route path="offer-settings" element={<OfferSettings />} />
             <Route path="offline-gateway" element={<OfflineGateway />} />
             <Route path="settings" element={<Settings />} />
             <Route path="analytics" element={<Analytics />} />
