@@ -24,37 +24,21 @@ const OfferSettings = () => {
     if (!image) return;
     setLoading(true);
     const formData = new FormData();
-  formData.append('file', image);
-    try {
-      // Cloudinary upload
-      const cloudinaryRes = await axios.post('https://api.cloudinary.com/v1_1/dzwmz3nag/image/upload', formData, {
-        params: {
-          upload_preset: 'startraders'
-        }
-      });
-      const imageUrl = cloudinaryRes.data.secure_url;
-      // Save image URL to backend
-      await axios.post('/api/offer/image', { image: imageUrl });
-      setCurrentOffer(imageUrl);
-      setImage(null);
-      setPreview('');
-      alert('Offer updated!');
-    } catch (err) {
-      let msg = 'Upload failed.';
-      if (err.response && err.response.data) {
-        if (typeof err.response.data.error === 'string') {
-          msg += ' Reason: ' + err.response.data.error;
-        } else if (typeof err.response.data.error === 'object') {
-          msg += ' Reason: ' + JSON.stringify(err.response.data.error);
-        } else {
-          msg += ' Reason: ' + JSON.stringify(err.response.data);
-        }
-      } else if (err.message) {
-        msg += ' Reason: ' + err.message;
+    formData.append('image', image);
+    // Cloudinary upload
+    const cloudinaryRes = await axios.post('https://api.cloudinary.com/v1_1/<cloud_name>/image/upload', formData, {
+      params: {
+        upload_preset: '<upload_preset>'
       }
-      alert(msg);
-    }
+    });
+    const imageUrl = cloudinaryRes.data.secure_url;
+    // Save image URL to backend
+  await axios.post('/api/offer/image', { image: imageUrl });
+    setCurrentOffer(imageUrl);
     setLoading(false);
+    setImage(null);
+    setPreview('');
+    alert('Offer updated!');
   };
 
   return (
