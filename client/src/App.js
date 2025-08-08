@@ -21,7 +21,8 @@ import Report from './Report';
 import Support from './Support.jsx';
 
 // Error Boundary and API Status Checker
-import ErrorBoundary, { APIStatusChecker } from './components/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
+import { APIStatusChecker } from './components/ErrorBoundary';
 
 
 // ✅ Admin pages
@@ -96,67 +97,65 @@ const App = () => {
   );
 
   return (
-    <ErrorBoundary>
-      <APIStatusChecker />
-      <div>
-        {showPopup && offerImage && (
-          <OfferPopup imageUrl={offerImage} onClose={() => setShowPopup(false)} />
-        )}
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/staking" element={<Staking />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/earning" element={<Earning />} />
-            <Route path="/salary-income" element={<SalaryIncome />} />
+    <>
+      {/* Debug heading to confirm React rendering */}
+      <div style={{textAlign:'center',margin:'20px',color:'red',fontWeight:'bold',fontSize:'2rem'}}>Site Loaded</div>
+      <ErrorBoundary>
+        <APIStatusChecker>
+          {showPopup && offerImage && (
+            <OfferPopup imageUrl={offerImage} onClose={() => setShowPopup(false)} />
+          )}
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="staking" element={<Staking />} />
+              <Route path="team" element={<Team />} />
+              <Route path="earning" element={<Earning />} />
+              <Route path="salary-income" element={<SalaryIncome />} />
+              <Route path="trading" element={<Trading />} />
+              <Route path="trading-income" element={<Trading />} />
+              <Route path="direct-referral-income" element={<Referral />} />
+              <Route path="referral-on-trading" element={<ReferralOnTrading />} />
+              <Route path="referral-income" element={<ReferralIncome />} />
+              <Route path="reward-income" element={<RewardIncomeUser />} />
+              <Route path="withdrawal" element={<USDTWithdrawalPage />} />
+              <Route path="report" element={<Report />} />
+              <Route path="support" element={<Support />} />
+              <Route path="transactions" element={<TransactionHistory />} />
+            </Route>
+            <Route path="/admin" element={<ProtectedAdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="user/:id" element={<UserDetail />} />
+              <Route path="deposits" element={<Deposits />} />
+              <Route path="withdrawals" element={<Withdrawals />} />
+              <Route path="reward-income" element={<AdminRewardIncome />} />
+              <Route path="offer-settings" element={<OfferSettings />} />
+              <Route path="offline-gateway" element={<OfflineGateway />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="support" element={<AdminSupport />} />
+              <Route path="trading-income" element={<TradingIncome />} />
+              <Route path="referral-settings" element={<ReferralSettingsAdmin />} />
+            </Route>
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/deposit" element={<USDTDepositpage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/trading" element={<Trading />} />
-            <Route path="/trading-income" element={<Trading />} />
-            <Route path="/direct-referral-income" element={<Referral />} />
+            <Route path="/referral-income" element={<Referral />} />
+            <Route path="/referral" element={<Referral />} />
+            <Route path="/dashboard/referral" element={<Referral />} />
             <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
-            <Route path="/reward-income" element={<RewardIncomeUser />} />
-            <Route path="/withdrawal" element={<USDTWithdrawalPage />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/transactions" element={<TransactionHistory />} />
-          </Route>
-
-          <Route path="/admin" element={<ProtectedAdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="user/:id" element={<UserDetail />} />
-            <Route path="deposits" element={<Deposits />} />
-            <Route path="withdrawals" element={<Withdrawals />} />
-            <Route path="reward-income" element={<AdminRewardIncome />} />
-            <Route path="offer-settings" element={<OfferSettings />} />
-            <Route path="offline-gateway" element={<OfflineGateway />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="transactions" element={<Transactions />} />
-            <Route path="support" element={<AdminSupport />} />
-            <Route path="trading-income" element={<TradingIncome />} />
-            <Route path="referral-settings" element={<ReferralSettingsAdmin />} />
-          </Route>
-
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/deposit" element={<USDTDepositpage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/trading" element={<Trading />} />
-          {/* Referral Dashboard: All referral routes point to Referral.jsx */}
-          <Route path="/referral-income" element={<Referral />} />
-          <Route path="/referral" element={<Referral />} />
-          <Route path="/dashboard/referral" element={<Referral />} />
-          {/* Referral on trading income */}
-          <Route path="/referral-on-trading" element={<ReferralOnTrading />} />
-          <Route path="/salary-income" element={<SalaryIncome />} />
-
-          {/* Home and 404 */}
-          <Route path="/" element={<Login />} />
-          <Route path="*" element={<h1 style={{ color: 'white' }}>Page Not Found</h1>} />
-        </Routes>
-      </div>
-    </ErrorBoundary>
+            <Route path="/salary-income" element={<SalaryIncome />} />
+            <Route path="*" element={<h1 style={{ color: 'white' }}>Page Not Found</h1>} />
+          </Routes>
+        </APIStatusChecker>
+      </ErrorBoundary>
+    </>
   );
 };
 
