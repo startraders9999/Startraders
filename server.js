@@ -535,6 +535,8 @@ app.post('/api/register', async (req, res) => {
 });
 
 // User Login
+const jwt = require('jsonwebtoken'); // Add at top if not present
+
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -553,9 +555,12 @@ app.post('/api/login', async (req, res) => {
       user.referralCode = referralCode;
       await user.save();
     }
+    // Generate JWT token
+    const token = jwt.sign({ userId: user._id, email: user.email }, 'your_jwt_secret', { expiresIn: '7d' });
     res.json({
       success: true,
       message: 'Login successful',
+      token, // Include token in response
       user: {
         _id: user._id,
         name: user.name,
