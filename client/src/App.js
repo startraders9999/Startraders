@@ -67,11 +67,22 @@ const App = () => {
 
   useEffect(() => {
     if (token) {
-      axios.get('/api/offer/image').then(res => {
-        if (res.data.imageUrl) {
-          setOfferImage(res.data.imageUrl);
-          setShowPopup(true);
-        }
+      console.log('🟢 Token mil gaya, ab offer image API call karenge (Hindi)');
+      import('./api').then(({ default: API }) => {
+        API.get('/offer/image')
+          .then(res => {
+            console.log('🟢 Offer image API response (Hindi):', res.data);
+            if (res.data.imageUrl) {
+              setOfferImage(res.data.imageUrl);
+              setShowPopup(true);
+              console.log('✅ Popup dikhane ki taiyari ho gayi (Hindi)');
+            } else {
+              console.log('⚠️ Response me imageUrl nahi mila (Hindi)');
+            }
+          })
+          .catch(err => {
+            console.error('❌ Offer image API call fail hua (Hindi):', err);
+          });
       });
     }
   }, [token]);
