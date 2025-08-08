@@ -1270,6 +1270,7 @@ app.post('/api/debug/test-referral-income', async (req, res) => {
       
       console.log(`Level ${level + 1}: ${refUser.name} should get $${income.toFixed(2)}`);
       
+      // ✅ Move to next level (referrer's referrer)
       refUserId = refUser.referredBy;
     }
     
@@ -1379,6 +1380,7 @@ app.post('/api/admin/force-trading-income', async (req, res) => {
           
           console.log(`✅ Manual Level ${level + 1}: $${income.toFixed(2)} to ${refUser.name}`);
           
+          // ✅ Move to next level (referrer's referrer)
           refUserId = refUser.referredBy;
         }
 
@@ -1987,7 +1989,7 @@ app.post('/api/debug/instant-otp-test', async (req, res) => {
     
     const Otp = require('./models/otp');
     
-    // Clean old test OTPs
+    // Clean old expired OTPs
     await Otp.deleteMany({ email: testEmail, purpose: 'withdrawal' });
     
     // Save new OTP
@@ -2061,3 +2063,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+// Offer image upload route
+const offerRouter = require('./routes/offer');
+app.use(offerRouter);
