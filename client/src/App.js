@@ -127,7 +127,6 @@ const App = () => {
             <Route path="deposits" element={<Deposits />} />
             <Route path="withdrawals" element={<Withdrawals />} />
             <Route path="reward-income" element={<AdminRewardIncome />} />
-            <Route path="boosting" element={<BoostingControl />} />
             <Route path="offer-settings" element={<OfferSettings />} />
             <Route path="offline-gateway" element={<OfflineGateway />} />
             <Route path="settings" element={<Settings />} />
@@ -161,4 +160,8 @@ const App = () => {
   );
 };
 
+<<<<<<< HEAD
 export default App;
+=======
+export default App;
+>>>>>>> 5e336bb4c6010060638b0c04265c8fe6b3359248
