@@ -41,8 +41,14 @@ const OfferSettings = () => {
       alert('Offer updated!');
     } catch (err) {
       let msg = 'Upload failed.';
-      if (err.response && err.response.data && err.response.data.error) {
-        msg += ' Reason: ' + err.response.data.error;
+      if (err.response && err.response.data) {
+        if (typeof err.response.data.error === 'string') {
+          msg += ' Reason: ' + err.response.data.error;
+        } else if (typeof err.response.data.error === 'object') {
+          msg += ' Reason: ' + JSON.stringify(err.response.data.error);
+        } else {
+          msg += ' Reason: ' + JSON.stringify(err.response.data);
+        }
       } else if (err.message) {
         msg += ' Reason: ' + err.message;
       }
