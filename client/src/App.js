@@ -93,9 +93,9 @@ const App = () => {
         <button onClick={onClose} style={{ position: 'absolute', top: 10, right: 10 }}>Close</button>
       </div>
     </div>
+  );
 
   return (
-    <ErrorBoundary>
       <APIStatusChecker>
         <Routes>
           {/* User routes */}
@@ -160,7 +160,5 @@ const App = () => {
       </APIStatusChecker>
     </ErrorBoundary>
   );
-  // ...existing code...
-};
-
+}
 export default App;
