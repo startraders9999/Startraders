@@ -64,7 +64,7 @@ const Sidebar = ({ open, setOpen, position }) => {
           onClick={() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-              window.location.replace('https://startraders-frontend.onrender.com/login');
+              window.location.replace('https://startraders-frontand.onrender.com/login');
             setOpen(false);
           }}
           style={{
