@@ -44,22 +44,24 @@ const Dashboard = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      const popupShown = sessionStorage.getItem("tourPopupShown");
-      if (!popupShown) {
-        setShowPopup(true);
-        sessionStorage.setItem("tourPopupShown", "true");
-      }
+    if (!user || !user._id) {
+      // Redirect to login if user is not present
+      navigate('/login');
+      return;
     }
-  }, []);
+    const popupShown = sessionStorage.getItem("tourPopupShown");
+    if (!popupShown) {
+      setShowPopup(true);
+      sessionStorage.setItem("tourPopupShown", "true");
+    }
+  }, [navigate]);
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user._id) {
-      getDirectReferralStatus(user._id).then(({active, inactive}) => {
-        setDirectReferralActive(active);
-        setDirectReferralInactive(inactive);
-      });
-    }
+    if (!user || !user._id) return;
+    getDirectReferralStatus(user._id).then(({active, inactive}) => {
+      setDirectReferralActive(active);
+      setDirectReferralInactive(inactive);
+    });
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

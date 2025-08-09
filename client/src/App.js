@@ -55,6 +55,12 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [offerImage, setOfferImage] = useState('');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user._id) {
+      window.location.href = '/login';
+    }
+  }, []);
 
 
   useEffect(() => {
