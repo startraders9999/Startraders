@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
@@ -534,7 +535,11 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+const jwt = require('jsonwebtoken'); // Add at top if not present
 // User Login
+// Offer image upload route
+const jwt = require('jsonwebtoken'); // Add at top if not present
+
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -553,9 +558,12 @@ app.post('/api/login', async (req, res) => {
       user.referralCode = referralCode;
       await user.save();
     }
+    // Generate JWT token
+    const token = jwt.sign({ userId: user._id, email: user.email }, 'your_jwt_secret', { expiresIn: '7d' });
     res.json({
       success: true,
       message: 'Login successful',
+      token, // Include token in response
       user: {
         _id: user._id,
         name: user.name,
@@ -1910,7 +1918,7 @@ app.post('/api/debug/test-otp', async (req, res) => {
     // Test actual database workflow
     const Otp = require('./models/otp');
     
-    // Clean old test OTPs
+  // Clean old expired OTPs
     await Otp.deleteMany({ email: testEmail, purpose: 'withdrawal' });
     
     // Create new test OTP
@@ -1982,7 +1990,7 @@ app.post('/api/debug/instant-otp-test', async (req, res) => {
     
     const Otp = require('./models/otp');
     
-    // Clean old test OTPs
+  // Clean old expired OTPs
     await Otp.deleteMany({ email: testEmail, purpose: 'withdrawal' });
     
     // Save new OTP
@@ -2044,9 +2052,48 @@ app.post('/api/debug/instant-otp-test', async (req, res) => {
   }
 });
 
-// Serve React frontend (production build)
+// Offer image upload route
+// Offer image upload route
+try {
+  const offerRouter = require('./server/routes/offer');
+  app.use(offerRouter);
+} catch (e1) {
+  try {
+    const offerRouter = require('./routes/offer');
+    app.use(offerRouter);
+  } catch (e2) {
+    try {
+      const offerRouter = require('./src/routes/offer');
+      app.use(offerRouter);
+    } catch (e3) {
+      console.error('Offer route not found in any known path');
+    }
+  }
+}
+
+
+
+// Offer image upload route
+try {
+  const offerRouter = require('./server/routes/offer');
+  app.use(offerRouter);
+} catch (e1) {
+  try {
+    const offerRouter = require('./routes/offer');
+    app.use(offerRouter);
+  } catch (e2) {
+    try {
+      const offerRouter = require('./src/routes/offer');
+      app.use(offerRouter);
+    } catch (e3) {
+      console.error('Offer route not found in any known path');
+    }
+  }
+}
+
+// Serve React frontend (production build) - must be LAST
 const clientBuildPath = path.join(__dirname, 'client', 'build');
-// Always enable SPA fallback so refresh/direct route never gives Not Found
+
 app.use(express.static(clientBuildPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
