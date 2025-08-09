@@ -74,7 +74,7 @@ const App = () => {
       // Force popup to show after login, even if offer image API fails
       setShowPopup(true);
       import('./api').then(({ default: API }) => {
-        API.get('/offer/image')
+        API.get('/api/offer/image')
           .then(res => {
             if (res.data.imageUrl) {
               setOfferImage(res.data.imageUrl);
