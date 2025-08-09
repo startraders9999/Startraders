@@ -27,7 +27,11 @@ const Sidebar = ({ open, setOpen, position }) => {
     background: '#fff',
     boxShadow: '2px 0 8px rgba(140,75,231,0.08)',
     zIndex: 999,
-    transform: open ? 'translateX(0)' : 'translateX(-100%)',
+    transform: open
+      ? 'translateX(0)'
+      : position === 'left'
+      ? 'translateX(-100%)'
+      : 'translateX(100%)',
     transition: 'transform 0.3s',
     borderRight: '4px solid #8c4be7',
     display: 'flex',
@@ -60,7 +64,7 @@ const Sidebar = ({ open, setOpen, position }) => {
           onClick={() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            window.location.replace('https://startraders-frontend.onrender.com');
             setOpen(false);
           }}
           style={{
