@@ -1,3 +1,25 @@
+/* Fixed Logout Button at Bottom of Sidebar */
+.sidebar-logout-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
+  background: #8c4be7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 48px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(140,75,231,0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  width: 90%;
+  z-index: 10001;
+}
 /* Sidebar - NO BLACK BOX, TRANSPARENT */
 .neopips-sidebar {
   position: fixed;

@@ -55,7 +55,34 @@ const Sidebar = ({ open, setOpen, position }) => {
             </div>
           ))}
         </div>
-        {/* Close button at bottom */}
+        {/* Logout button above Close Sidebar */}
+        <button
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+            setOpen(false);
+          }}
+          style={{
+            margin:'18px',
+            background:'#8c4be7',
+            color:'#fff',
+            border:'none',
+            borderRadius:'8px',
+            padding:'12px 0',
+            fontWeight:700,
+            fontSize:'1.1rem',
+            cursor:'pointer',
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            gap:'10px',
+            marginBottom:'8px'
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" style={{marginRight:'8px',fill:'#fff'}}><path d="M0 0h24v24H0V0z" fill="none"/><path d="M13 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+          Logout
+        </button>
         <button onClick={() => setOpen(false)} style={{margin:'18px',background:'#8c4be7',color:'#fff',border:'none',borderRadius:'8px',padding:'10px 0',fontWeight:700,fontSize:'1rem',cursor:'pointer'}}>Close Sidebar</button>
       </nav>
       {/* Overlay for mobile */}

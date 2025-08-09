@@ -10,6 +10,7 @@ function Login() {
   const [email, setEmail] = useState(localStorage.getItem('savedEmail') || '');
   const [password, setPassword] = useState(localStorage.getItem('savedPassword') || '');
   const [remember, setRemember] = useState(true);
+  // const [showLoginPopup, setShowLoginPopup] = useState(false); // हटाया गया
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -34,7 +35,8 @@ function Login() {
           localStorage.removeItem('savedEmail');
           localStorage.removeItem('savedPassword');
         }
-        navigate('/dashboard');
+  sessionStorage.removeItem('tourPopupShown'); // हर बार लॉगिन पर popup दिखाने के लिए
+  navigate('/dashboard');
       } else {
         alert('Invalid credentials');
       }
