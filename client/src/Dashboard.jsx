@@ -1,13 +1,54 @@
-// Minor change to trigger git push and force redeploy
-// STAR TRADER Dashboard - Polmax style, all options same as Polmax
-import React from 'react';
-import './Dashboard.css';
-import logo from './assets/logo.png';
+import React, { useState, useEffect } from "react";
+import kumbhalgarhImage from "../assets/kumbhalgarh-popup.jpg";
+// ...existing imports...
 
-function Dashboard() {
-  const user = JSON.parse(localStorage.getItem('user'));
+const Dashboard = (props) => {
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    const popupShown = sessionStorage.getItem("tourPopupShown");
+    if (!popupShown) {
+      setShowPopup(true);
+      sessionStorage.setItem("tourPopupShown", "true");
+    }
+  }, []);
+
+  // ...existing dashboard logic...
+
   return (
-    <div className="dashboard-main-container">
+    <div>
+      {/* Kumbhalgarh Popup */}
+      {showPopup && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          backgroundColor: "rgba(0,0,0,0.7)", display: "flex",
+          justifyContent: "center", alignItems: "center", zIndex: 9999
+        }}>
+          <div style={{ position: "relative", maxWidth: "500px", width: "90%" }}>
+            <img
+              src={kumbhalgarhImage}
+              alt="Kumbhalgarh Tour Package"
+              style={{ width: "100%", borderRadius: "10px" }}
+            />
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                position: "absolute", top: "10px", right: "10px",
+                background: "red", color: "white", border: "none",
+                padding: "5px 10px", borderRadius: "5px", cursor: "pointer"
+              }}
+            >
+              ✖
+            </button>
+          </div>
+        </div>
+      )}
+      {/* ...existing dashboard JSX... */}
+        </div>
+      );
+}
+
+// ...existing code...
       {/* Header - Polmax style, pink/purple background, small logo, STAR TRADER name */}
       <div className="dashboard-header polmax-header">
         <img src={logo} alt="Star Trader Logo" className="dashboard-logo polmax-logo" />
@@ -82,7 +123,7 @@ function Dashboard() {
       <footer className="dashboard-footer">
         2025 - 2026 © Client dashboard by STAR TRADER
       </footer>
-    </div>
+    {/* ...existing dashboard JSX... */}
   );
 }
 
