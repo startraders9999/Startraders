@@ -71,26 +71,21 @@ const App = () => {
   useEffect(() => {
     console.log('🔍 useEffect [token] trigger hua (Hindi), token:', token);
     if (token) {
-      console.log('🟢 Token mil gaya, ab offer image API call karenge (Hindi)');
+      // Force popup to show after login, even if offer image API fails
+      setShowPopup(true);
       import('./api').then(({ default: API }) => {
-        console.log('🔗 API instance import ho gaya (Hindi)');
         API.get('/offer/image')
           .then(res => {
-            console.log('🟢 Offer image API response (Hindi):', res.data);
             if (res.data.imageUrl) {
               setOfferImage(res.data.imageUrl);
-              setShowPopup(true);
-              console.log('✅ Popup dikhane ki taiyari ho gayi (Hindi)');
-            } else {
-              console.log('⚠️ Response me imageUrl nahi mila (Hindi)');
             }
           })
-          .catch(err => {
-            console.error('❌ Offer image API call fail hua (Hindi):', err);
+          .catch(() => {
+            // Ignore error, popup will still show
           });
       });
     } else {
-      console.log('🔴 Token nahi mila, popup logic skip (Hindi)');
+      setShowPopup(false);
     }
   }, [token]);
 
