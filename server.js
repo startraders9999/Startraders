@@ -535,10 +535,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-const jwt = require('jsonwebtoken'); // Add at top if not present
-// User Login
-// Offer image upload route
-const jwt = require('jsonwebtoken'); // Add at top if not present
+
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
