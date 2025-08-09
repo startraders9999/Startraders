@@ -1,28 +1,138 @@
+
+// ...existing code from Dashboard.js with popup logic merged...
 import React, { useState, useEffect } from 'react';
 import kumbhalgarhImage from './assets/kumbhalgarh-popup.png';
-import logo from './assets/logo.png'; // Make sure this path is correct
+import DirectReferralStatus from './components/DirectReferralStatus';
+import { getDirectReferralStatus } from './api/directReferralStatus';
+import BoostingTimer from './BoostingTimer';
+import UniversalResponsiveLayout from './UniversalResponsiveLayout';
+import { useNavigate } from 'react-router-dom';
+import { FaUsers, FaRobot, FaGift, FaExchangeAlt, FaUserPlus, FaChartLine, FaMoneyBill, FaHeadphones, FaSignOutAlt, FaWallet } from 'react-icons/fa';
+import logo from './assets/logo.png';
+import './Dashboard.css';
+import axios from 'axios';
+import Sidebar from './components/SideBar';
 
 const Dashboard = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const user = JSON.parse(localStorage.getItem('user'));
-  console.log('user:', user);
+  const navigate = useNavigate();
+  const menuItems = [
+    { label: 'Dashboard', icon: <FaChartLine /> },
+    { label: 'Invest', icon: <FaMoneyBill /> },
+    { label: 'AI Bot', icon: <FaRobot /> },
+    { label: 'Payments', icon: <FaExchangeAlt /> },
+    { label: 'Referrals', icon: <FaUsers /> },
+    { label: 'Profit', icon: <FaGift /> },
+    { label: 'Signup Reward', icon: <FaUserPlus /> },
+    { label: 'Support', icon: <FaHeadphones /> },
+    { label: 'Logout', icon: <FaSignOutAlt /> }
+  ];
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  const [availableFunds, setAvailableFunds] = useState(0);
+  const [referralIncome, setReferralIncome] = useState(0);
+  const [referralTradingIncome, setReferralTradingIncome] = useState(0);
+  const [directReferralActive, setDirectReferralActive] = useState(0);
+  const [directReferralInactive, setDirectReferralInactive] = useState(0);
+  const [supportSettings, setSupportSettings] = useState({
+    telegramSupportLink: 'https://t.me/startraderssupport',
+    supportEmail: 'support@startraders.com',
+    supportPhone: '+1234567890',
+    whatsappSupport: ''
+  });
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       const popupShown = sessionStorage.getItem("tourPopupShown");
-      console.log('popupShown:', popupShown);
       if (!popupShown) {
         setShowPopup(true);
         sessionStorage.setItem("tourPopupShown", "true");
       }
     }
-  }, [user]);
-  useEffect(() => {
-    console.log('showPopup:', showPopup);
-  }, [showPopup]);
+  }, []);
+  React.useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user._id) {
+      getDirectReferralStatus(user._id).then(({active, inactive}) => {
+        setDirectReferralActive(active);
+        setDirectReferralInactive(inactive);
+      });
+    }
+    const handleResize = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  React.useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user._id) return;
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
+      .then(res => {
+        if (res.data.success && res.data.user && typeof res.data.user.balance === 'number') {
+          setAvailableFunds(res.data.user.balance);
+        } else {
+          setAvailableFunds(0);
+        }
+      })
+      .catch(() => setAvailableFunds(0));
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-income/${user._id}`)
+      .then(res => {
+        if (res.data.success && typeof res.data.totalReferralIncome === 'string') {
+          setReferralIncome(parseFloat(res.data.totalReferralIncome));
+        } else if (res.data.success && typeof res.data.totalReferralIncome === 'number') {
+          setReferralIncome(res.data.totalReferralIncome);
+        } else {
+          setReferralIncome(0);
+        }
+      })
+      .catch(() => setReferralIncome(0));
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/${user._id}`)
+      .then(res => {
+        if (res.data.success && typeof res.data.totalIncome === 'number') {
+          setReferralTradingIncome(res.data.totalIncome);
+        } else {
+          setReferralTradingIncome(0);
+        }
+      })
+      .catch(() => setReferralTradingIncome(0));
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/support-settings`)
+      .then(res => {
+        if (res.data.success) {
+          setSupportSettings({
+            telegramSupportLink: res.data.telegramSupportLink || 'https://t.me/startraderssupport',
+            supportEmail: res.data.supportEmail || 'support@startraders.com',
+            supportPhone: res.data.supportPhone || '+1234567890',
+            whatsappSupport: res.data.whatsappSupport || ''
+          });
+        }
+      })
+      .catch(() => console.log('Failed to fetch support settings'));
+  }, []);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const referralCode = user && user._id ? user._id : '';
+  const referralLink = referralCode ? `https://startraders-frontand.onrender.com/register?ref=${referralCode}` : '';
+
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    if (!referralCode) {
+      alert('Referral code missing. Please login again.');
+      return;
+    }
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    });
+  };
 
   return (
-    <div className="dashboard-main-container">
+    <>
       {/* Kumbhalgarh Popup - Only after login */}
       {showPopup && (
         <div style={{
@@ -49,83 +159,125 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      {/* Header - Polmax style, pink/purple background, small logo, STAR TRADER name */}
-      <div className="dashboard-header polmax-header">
-        <img src={logo} alt="Star Trader Logo" className="dashboard-logo polmax-logo" />
-        <span className="dashboard-title polmax-title">STAR TRADER</span>
-      </div>
-      {/* Menu Bar - Polmax style, pink/purple menu */}
-      <nav className="dashboard-menu polmax-menu">
-        <div className="dashboard-menu-item polmax-menu-item">DASHBOARD</div>
-        <div className="dashboard-menu-item polmax-menu-item">INVEST</div>
-        <div className="dashboard-menu-item polmax-menu-item">AI BOT</div>
-        <div className="dashboard-menu-item polmax-menu-item">PAYMENTS</div>
-        <div className="dashboard-menu-item polmax-menu-item">REFERRALS</div>
-        <div className="dashboard-menu-item polmax-menu-item">PROFIT</div>
-        <div className="dashboard-menu-item polmax-menu-item">SIGNUP REWARD</div>
-        <div className="dashboard-menu-item polmax-menu-item">SUPPORT</div>
-        <div className="dashboard-menu-item polmax-menu-item">LOGOUT</div>
-      </nav>
-      {/* Refer & Earn Section */}
-      <div className="dashboard-section dashboard-refer-earn">
-        <div className="dashboard-refer-title">Refer & Earn</div>
-        <input
-          className="dashboard-refer-link"
-          value={`https://startraders-frontand.onrender.com/register?ref=${user?._id || ''}`}
-          readOnly
-        />
-        <div className="dashboard-refer-socials">
-          <button className="dashboard-social-btn">FB</button>
-          <button className="dashboard-social-btn">WA</button>
+      <UniversalResponsiveLayout>
+        {/* Hamburger/Menu button for sidebar toggle (left top) */}
+        <button
+          className="sidebar-hamburger"
+          style={{position:'fixed',top:18,right:18,zIndex:1000,background:'none',border:'none',cursor:'pointer'}}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <span style={{fontSize:'2rem',color:'#444'}}>&#9776;</span>
+        </button>
+        {/* Sidebar only opens when sidebarOpen is true */}
+        {sidebarOpen && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} position="right" />}
+        {/* Header with Star Traders logo and brand name, Polmax style */}
+        <div style={{width:'100%',background:'#8c4be7',display:'flex',alignItems:'center',padding:'0 0 0 24px',height:'64px',boxShadow:'0 2px 8px rgba(140,75,231,0.08)'}}>
+          <img src={logo} alt="Star Traders Logo" style={{height:'40px',marginRight:'16px'}} />
+          <span style={{color:'#fff',fontWeight:700,fontSize:'2rem',letterSpacing:'1px'}}>STAR TRADERS</span>
         </div>
-        <div className="dashboard-media-link">
-          <button className="dashboard-social-btn">INSTA</button>
-          <button className="dashboard-social-btn">WA</button>
+
+        {/* Boosting Block - above Refer & Earn */}
+        <BoostingTimer userId={user._id} />
+
+        {/* Dashboard Content below header */}
+        <div className="dashboard-polmax" style={{marginLeft: sidebarOpen ? '260px' : '0',transition:'margin-left 0.3s'}}>
+          {/* Refer & Earn - logo and black box removed as requested */}
+          <div className="refer-earn-box">
+            <div className="refer-title">Refer & Earn</div>
+            <div className="refer-link-row">
+              <input className="refer-link-input" type="text" value={referralLink} readOnly placeholder="Referral link will appear here" />
+              <button
+                className="refer-copy-btn"
+                onClick={handleCopy}
+                style={{background:'#8c4be7',color:'#fff'}}
+                disabled={!referralCode}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <div className="refer-btn-row">
+              <a href={supportSettings.telegramSupportLink} target="_blank" rel="noopener noreferrer">
+                <button className="refer-btn" style={{background:'#8c4be7',color:'#fff'}}>Telegram Support</button>
+              </a>
+            </div>
+          </div>
+
+          {/* Grid Section */}
+          <div className="dashboard-grid">
+            <div className="grid-left">
+              <div className="grid-row">
+                <div className="grid-box clickable" onClick={() => navigate('/trading-income')}>
+                  <FaChartLine style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span>TRADING INCOME</span><span>$0</span>
+                </div>
+                <div className="grid-box clickable" onClick={() => navigate('/direct-referral-income')} style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <FaUsers style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                    <span>DIRECT REFERRAL INCOME</span>
+                  </div>
+                  <DirectReferralStatus activeCount={directReferralActive} inactiveCount={directReferralInactive} />
+                </div>
+              </div>
+              <div className="grid-row">
+                <div className="grid-box clickable" onClick={() => navigate('/referral-on-trading')}>
+                  <FaExchangeAlt style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span>REFERRAL INCOME ON TRADING INCOME</span><span>${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="grid-box clickable" onClick={() => navigate('/reward-income')}>
+                  <FaGift style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span>REWARD INCOME</span><span>$0</span>
+                </div>
+              </div>
+              <div className="grid-row">
+                <div className="grid-box clickable" onClick={() => navigate('/salary-income')}>
+                  <FaMoneyBill style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span>SALARY INCOME</span><span>$0</span>
+                </div>
+                <div className="grid-box clickable" style={{border:'1.5px dashed #8c4be7', borderRadius:'12px', background:'#f7f8fa', color:'#8c4be7', fontWeight:'600', minWidth:'160px', textAlign:'center', marginBottom:'12px', padding:'18px 12px'}}>
+                  <FaUsers style={{color:'#8c4be7',fontSize:'1.5rem',marginRight:'8px'}} />
+                  <span style={{fontSize:'1.1rem', fontWeight:'700'}}>TEAM</span><br />
+                  <span>$0</span><br />
+                  <button className="view-status-btn" style={{background:'#8c4be7',color:'#fff',marginTop:'8px',borderRadius:'8px',padding:'8px 18px',fontWeight:'600',fontSize:'1rem'}} onClick={e => {e.stopPropagation();navigate('/team')}}>View Status</button>
+                </div>
+              </div>
+            </div>
+              <div className="grid-right">
+              <div className="wallet-box">
+                <div className="wallet-title">Your wallet</div>
+                <div className="wallet-desc">here you will check wallet transactions.</div>
+                <div className="wallet-cards">
+                <div className="wallet-card" onClick={() => navigate('/transactions')} style={{cursor:'pointer'}}>
+                  <FaWallet className="wallet-icon" />
+                  Available Funds<br />
+                  ${availableFunds.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </div>
+                <div className="wallet-card" onClick={() => navigate('/direct-referral-income')} style={{cursor:'pointer'}}>
+                  <FaWallet className="wallet-icon" />
+                  Referral Income<br />
+                  ${referralIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </div>
+                <div className="wallet-card" onClick={() => navigate('/referral-on-trading')} style={{cursor:'pointer'}}>
+                  <FaWallet className="wallet-icon" />
+                  Referral on Trading Income<br />${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </div>
+                </div>
+                <div className="wallet-btn-row">
+                  <button className="wallet-btn" style={{background:'#8c4be7'}} onClick={() => navigate('/deposit')}>Deposit</button>
+                  <button className="wallet-btn" style={{background:'#8c4be7'}} onClick={() => navigate('/withdrawal')}>Withdraw</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="dashboard-footer">
+            2025 - 2026 © Client dashboard by <span style={{ color: '#8c4be7', fontWeight: 'bold' }}>Star Traders</span>
+          </div>
         </div>
-      </div>
-      {/* My Referral & My Business Section */}
-      <div className="dashboard-section dashboard-referral-business">
-        <div className="dashboard-referral-group">
-          <div className="dashboard-referral-box">DOWNLINE<br />0</div>
-          <div className="dashboard-referral-box">ACTIVE DOWNLINE<br />0</div>
-          <div className="dashboard-referral-box">REFERRALS<br />TOTAL 0 | ACTIVE 0</div>
-        </div>
-        <div className="dashboard-business-group">
-          <div className="dashboard-business-box">SELF TOPUP<br />$0</div>
-          <div className="dashboard-business-box">DIRECT<br />$0</div>
-          <div className="dashboard-business-box">DOWNLINE<br />$0</div>
-        </div>
-      </div>
-      {/* Rewards & Profits Section */}
-      <div className="dashboard-section dashboard-rewards-profits">
-        <div className="dashboard-reward-box">SIGN UP REWARD<br />$0</div>
-        <div className="dashboard-reward-box">SIGN UP LEVEL<br />$0</div>
-        <div className="dashboard-reward-box">TRADING PROFIT<br />$0</div>
-        <div className="dashboard-reward-box">REFERRAL PROFIT<br />$0</div>
-        <div className="dashboard-reward-box">LEVEL PROFIT<br />$0</div>
-        <div className="dashboard-reward-box">RANK PROFIT<br />$0<br /><button className="dashboard-status-btn">View Status</button></div>
-      </div>
-      {/* Wallet Section */}
-      <div className="dashboard-section dashboard-wallet">
-        <div className="dashboard-wallet-title">Your wallet</div>
-        <div className="dashboard-wallet-desc">here you will check wallet transactions.</div>
-        <div className="dashboard-wallet-group">
-          <div className="dashboard-wallet-box">DEPOSIT WALLET<br />$0</div>
-          <div className="dashboard-wallet-box">SIGNUP WALLET<br />$0</div>
-          <div className="dashboard-wallet-box">INCOME WALLET<br />$0</div>
-        </div>
-        <div className="dashboard-wallet-actions">
-          <button className="dashboard-wallet-btn">Deposit</button>
-          <button className="dashboard-wallet-btn">Withdraw</button>
-        </div>
-      </div>
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        2025 - 2026 © Client dashboard by STAR TRADER
-      </footer>
-    </div>
-  );
-}
+      </UniversalResponsiveLayout>
+    </>
+    );
+  }
 
 export default Dashboard;
 

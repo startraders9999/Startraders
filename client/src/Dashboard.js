@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import kumbhalgarhImage from './assets/kumbhalgarh-popup.png';
 import DirectReferralStatus from './components/DirectReferralStatus';
 import { getDirectReferralStatus } from './api/directReferralStatus';
 import BoostingTimer from './BoostingTimer';
@@ -12,6 +13,7 @@ import Sidebar from './components/SideBar';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // default बंद (sidebar बंद)
+  const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
   const menuItems = [
     { label: 'Dashboard', icon: <FaChartLine /> },
@@ -41,6 +43,16 @@ const Dashboard = () => {
     whatsappSupport: ''
   });
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      const popupShown = sessionStorage.getItem("tourPopupShown");
+      if (!popupShown) {
+        setShowPopup(true);
+        sessionStorage.setItem("tourPopupShown", "true");
+      }
+    }
+  }, []);
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user._id) {
@@ -134,6 +146,32 @@ const Dashboard = () => {
 
   return (
     <UniversalResponsiveLayout>
+      {/* Kumbhalgarh Popup - Only after login */}
+      {showPopup && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          backgroundColor: "rgba(0,0,0,0.7)", display: "flex",
+          justifyContent: "center", alignItems: "center", zIndex: 9999
+        }}>
+          <div style={{ position: "relative", maxWidth: "500px", width: "90%" }}>
+            <img
+              src={kumbhalgarhImage}
+              alt="Kumbhalgarh Tour Package"
+              style={{ width: "100%", borderRadius: "10px" }}
+            />
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                position: "absolute", top: "10px", right: "10px",
+                background: "red", color: "white", border: "none",
+                padding: "5px 10px", borderRadius: "5px", cursor: "pointer"
+              }}
+            >
+              ✖
+            </button>
+          </div>
+        </div>
+      )}
       {/* Hamburger/Menu button for sidebar toggle (left top) */}
       <button
         className="sidebar-hamburger"
