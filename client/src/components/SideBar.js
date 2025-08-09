@@ -60,7 +60,7 @@ const Sidebar = ({ open, setOpen, position }) => {
           onClick={() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'https://startraders-frontand.onrender.com';
+            window.location.href = '/login';
             setOpen(false);
           }}
           style={{
