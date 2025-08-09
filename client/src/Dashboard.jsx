@@ -1,52 +1,45 @@
 import React, { useState, useEffect } from "react";
 import kumbhalgarhImage from "../assets/kumbhalgarh-popup.jpg";
-// ...existing imports...
+import './Dashboard.css';
+import logo from './assets/logo.png';
 
-const Dashboard = (props) => {
+const Dashboard = () => {
   const [showPopup, setShowPopup] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
 
-  useEffect(() => {
-    const popupShown = sessionStorage.getItem("tourPopupShown");
-    if (!popupShown) {
-      setShowPopup(true);
-      sessionStorage.setItem("tourPopupShown", "true");
-    }
-  }, []);
-
-  // ...existing dashboard logic...
-
-  return (
-    <div>
-      {/* Kumbhalgarh Popup */}
-      {showPopup && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-          backgroundColor: "rgba(0,0,0,0.7)", display: "flex",
-          justifyContent: "center", alignItems: "center", zIndex: 9999
-        }}>
-          <div style={{ position: "relative", maxWidth: "500px", width: "90%" }}>
-            <img
-              src={kumbhalgarhImage}
-              alt="Kumbhalgarh Tour Package"
-              style={{ width: "100%", borderRadius: "10px" }}
-            />
-            <button
-              onClick={() => setShowPopup(false)}
-              style={{
-                position: "absolute", top: "10px", right: "10px",
-                background: "red", color: "white", border: "none",
-                padding: "5px 10px", borderRadius: "5px", cursor: "pointer"
-              }}
-            >
-              ✖
-            </button>
-          </div>
+      </div>
+      {/* Rewards & Profits Section */}
+      <div className="dashboard-section dashboard-rewards-profits">
+        <div className="dashboard-reward-box">SIGN UP REWARD<br />$0</div>
+        <div className="dashboard-reward-box">SIGN UP LEVEL<br />$0</div>
+        <div className="dashboard-reward-box">TRADING PROFIT<br />$0</div>
+        <div className="dashboard-reward-box">REFERRAL PROFIT<br />$0</div>
+        <div className="dashboard-reward-box">LEVEL PROFIT<br />$0</div>
+        <div className="dashboard-reward-box">RANK PROFIT<br />$0<br /><button className="dashboard-status-btn">View Status</button></div>
+      </div>
+      {/* Wallet Section */}
+      <div className="dashboard-section dashboard-wallet">
+        <div className="dashboard-wallet-title">Your wallet</div>
+        <div className="dashboard-wallet-desc">here you will check wallet transactions.</div>
+        <div className="dashboard-wallet-group">
+          <div className="dashboard-wallet-box">DEPOSIT WALLET<br />$0</div>
+          <div className="dashboard-wallet-box">SIGNUP WALLET<br />$0</div>
+          <div className="dashboard-wallet-box">INCOME WALLET<br />$0</div>
         </div>
-      )}
-      {/* ...existing dashboard JSX... */}
+        <div className="dashboard-wallet-actions">
+          <button className="dashboard-wallet-btn">Deposit</button>
+          <button className="dashboard-wallet-btn">Withdraw</button>
         </div>
-      );
+      </div>
+      {/* Footer */}
+      <footer className="dashboard-footer">
+        2025 - 2026 © Client dashboard by STAR TRADER
+      </footer>
+    </div>
+  );
 }
+
+export default Dashboard;
 
 // ...existing code...
       {/* Header - Polmax style, pink/purple background, small logo, STAR TRADER name */}
