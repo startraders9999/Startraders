@@ -2,6 +2,34 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function Settings() {
+  // Admin password change modal state
+  const [showAdminPwdModal, setShowAdminPwdModal] = useState(false);
+  const [adminPwd, setAdminPwd] = useState("");
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPwdLoading, setAdminPwdLoading] = useState(false);
+
+  // Handler for admin password change
+  const handleAdminPwdSubmit = async (e) => {
+    e.preventDefault();
+    setAdminPwdLoading(true);
+    try {
+      const res = await axios.post("http://localhost:5000/api/admin/update-admin-password", {
+        username: adminUsername,
+        newPassword: adminPwd
+      });
+      if (res.data.success) {
+        alert("Admin password updated successfully");
+        setShowAdminPwdModal(false);
+        setAdminPwd("");
+        setAdminUsername("");
+      } else {
+        alert(res.data.message || "Error occurred while updating password");
+      }
+    } catch (err) {
+      alert("Error occurred while updating password");
+    }
+    setAdminPwdLoading(false);
+  };
   const [supportSettings, setSupportSettings] = useState({
     telegramSupportLink: '',
     supportEmail: '',
@@ -207,6 +235,46 @@ export default function Settings() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Change Admin Password Button */}
+      <button
+        style={{background:'#8c4be7',color:'#fff',border:'none',borderRadius:'8px',padding:'8px 18px',fontWeight:'600',fontSize:'1rem',cursor:'pointer',marginBottom:'18px'}}
+        onClick={()=>setShowAdminPwdModal(true)}
+      >
+        Change Admin Password
+      </button>
+
+      {/* Admin Password Change Modal */}
+      {showAdminPwdModal && (
+        <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}}>
+          <div style={{background:'#fff',padding:'32px',borderRadius:'12px',minWidth:'320px',boxShadow:'0 2px 12px rgba(0,0,0,0.2)'}}>
+            <h2 style={{marginBottom:'18px'}}>Change Admin Password</h2>
+            <form onSubmit={handleAdminPwdSubmit}>
+              <input
+                type="text"
+                value={adminUsername}
+                onChange={e=>setAdminUsername(e.target.value)}
+                placeholder="Enter admin username"
+                style={{width:'100%',padding:'10px',marginBottom:'12px',borderRadius:'6px',border:'1px solid #ccc'}}
+                required
+              />
+              <input
+                type="password"
+                value={adminPwd}
+                onChange={e=>setAdminPwd(e.target.value)}
+                placeholder="Enter new password"
+                style={{width:'100%',padding:'10px',marginBottom:'18px',borderRadius:'6px',border:'1px solid #ccc'}}
+                required
+              />
+              <div style={{display:'flex',justifyContent:'flex-end',gap:'12px'}}>
+                <button type="button" onClick={()=>setShowAdminPwdModal(false)} style={{background:'#eee',color:'#333',border:'none',borderRadius:'6px',padding:'8px 18px',fontWeight:'600',fontSize:'1rem',cursor:'pointer'}}>Cancel</button>
+                <button type="submit" disabled={adminPwdLoading} style={{background:'#8c4be7',color:'#fff',border:'none',borderRadius:'6px',padding:'8px 18px',fontWeight:'600',fontSize:'1rem',cursor:'pointer'}}>
+                  {adminPwdLoading ? 'Updating...' : 'Submit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <h2>⚙️ Admin Settings</h2>
       
       <div style={{ background: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>

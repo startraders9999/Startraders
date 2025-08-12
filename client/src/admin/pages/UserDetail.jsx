@@ -5,8 +5,7 @@ import axios from 'axios';
 import './UserDetail.css';
 
 const UserDetail = () => {
-  const [showAdminPwdPopup, setShowAdminPwdPopup] = useState(false);
-  const [adminNewPassword, setAdminNewPassword] = useState('');
+  // ...existing code...
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -40,29 +39,7 @@ const UserDetail = () => {
   };
 
   // Handler for Delete User button
-  // Handler for Change Admin Password
-  const handleChangeAdminPassword = () => {
-    setShowAdminPwdPopup(true);
-  };
-
-  const handleAdminPwdSubmit = () => {
-    if (!adminNewPassword) return alert('Enter new password');
-    axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/update-password', {
-      username: 'admin',
-      newPassword: adminNewPassword
-    }).then(res => {
-      if (res.data.success) {
-        alert('Admin password updated successfully');
-        setShowAdminPwdPopup(false);
-        setAdminNewPassword('');
-      } else {
-        alert(res.data.message || 'Failed to update password');
-      }
-    }).catch(err => {
-      console.error(err);
-      alert('Error occurred while updating password');
-    });
-  };
+  // ...existing code...
   const handleDeleteUser = () => {
     if (window.confirm('Kya aap user ko delete karna chahte hain?')) {
       axios.delete('https://startraders-fullstack-9ayr.onrender.com/api/admin/delete-user', { data: { userId: id } })
@@ -207,28 +184,9 @@ const UserDetail = () => {
       )}
 
       <div className="user-actions">
-  <button className="admin-pwd-btn" style={{marginRight: '10px', background: '#007bff', color: 'white'}} onClick={handleChangeAdminPassword}>Change Admin Password</button>
-      {/* Admin Password Change Popup */}
-      {showAdminPwdPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <h3>Change Admin Password</h3>
-            <input
-              type="password"
-              placeholder="Enter new password"
-              value={adminNewPassword}
-              onChange={e => setAdminNewPassword(e.target.value)}
-            />
-            <div className="popup-actions">
-              <button onClick={handleAdminPwdSubmit}>Submit</button>
-              <button onClick={() => setShowAdminPwdPopup(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-  <button className="ban-btn" onClick={handleBan}>Ban</button>
-  <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
-  <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
+        <button className="ban-btn" onClick={handleBan}>Ban</button>
+        <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
+        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
       </div>
 
       <h3 className="user-details-heading">TRANSACTION HISTORY</h3>

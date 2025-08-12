@@ -15,6 +15,7 @@ import Sidebar from './components/SideBar';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // ...existing code...
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
   const menuItems = [
@@ -133,6 +134,8 @@ const Dashboard = () => {
     });
   };
 
+  // ...existing code...
+
   return (
     <>
       {/* Kumbhalgarh Popup - Only after login */}
@@ -163,6 +166,7 @@ const Dashboard = () => {
       )}
       <UniversalResponsiveLayout>
         {/* Hamburger/Menu button for sidebar toggle (left top) */}
+  {/* ...existing code... */}
         <button
           className="sidebar-hamburger"
           style={{position:'fixed',top:18,right:18,zIndex:1000,background:'none',border:'none',cursor:'pointer'}}
