@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Admin = require('../models/admin');
 const jwt = require('jsonwebtoken');
 
 // Admin login as user
@@ -22,16 +23,18 @@ router.post('/login-as-user', async (req, res) => {
 
 module.exports = router;
 
-// Admin update password for user
-router.post('/update-password', async (req, res) => {
+// Admin update password for admin
+router.post('/update-admin-password', async (req, res) => {
   try {
     const { username, newPassword } = req.body;
     if (!username || !newPassword) return res.status(400).json({ success: false, message: 'Username and new password required' });
-  const bcrypt = require('bcryptjs');
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  const user = await User.findOneAndUpdate({ name: username }, { password: hashedPassword }, { new: true });
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    res.json({ success: true, user });
+    const bcrypt = require('bcryptjs');
+    const admin = await Admin.findOne({ username });
+    if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedPassword;
+    await admin.save();
+    res.json({ success: true, message: 'Admin password updated successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
