@@ -21,6 +21,19 @@ router.post('/login-as-user', async (req, res) => {
 });
 
 module.exports = router;
+
+// Admin update password for user
+router.post('/update-password', async (req, res) => {
+  try {
+    const { username, newPassword } = req.body;
+    if (!username || !newPassword) return res.status(400).json({ success: false, message: 'Username and new password required' });
+    const user = await User.findOneAndUpdate({ name: username }, { password: newPassword }, { new: true });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 // Admin ban user
 router.post('/ban-user', async (req, res) => {
   try {
