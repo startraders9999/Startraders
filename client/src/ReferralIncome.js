@@ -47,14 +47,15 @@ const ReferralIncome = () => {
     levelStats[level].amount += transaction.amount || 0;
   });
 
-  // Sirf deposit wali referral income dikhane ke liye filter laga rahe hain
-  // Sirf deposit wali referral income dikhane ke liye strict filter
-  const filteredReferralData = referralData.filter(
-    transaction =>
-      transaction.description &&
-      transaction.description.toLowerCase().includes('deposit') &&
-      !transaction.description.toLowerCase().includes('trading')
-  );
+  // Only show direct referral income from deposit, strictly exclude trading incomes
+  // Only show direct referral income from deposit, strictly exclude trading incomes using regex
+  const filteredReferralData = referralData.filter(transaction => {
+    const desc = transaction.description ? transaction.description.toLowerCase() : '';
+    // Only allow if description matches 'deposit' and does NOT contain 'trading' anywhere
+    const isDeposit = /deposit/.test(desc);
+    const isTrading = /trading/.test(desc);
+    return isDeposit && !isTrading;
+  });
 
   return (
     <div style={{ padding: '20px', color: 'white', background: 'transparent', minHeight: '100vh' }}>
