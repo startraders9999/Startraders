@@ -11,8 +11,13 @@ router.get('/user/:userId', async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
   // Find all transactions for this user (force ObjectId match)
-  const mongoose = require('mongoose');
-  const transactions = await require('../models/transaction').find({ userId: mongoose.Types.ObjectId(user._id) });
+    const mongoose = require('mongoose');
+    const transactions = await require('../models/transaction').find({
+      $or: [
+        { userId: mongoose.Types.ObjectId(user._id) },
+        { userId: user._id.toString() }
+      ]
+    });
 
     // Calculate income breakdowns
     let tradingIncome = 0, referralIncome = 0, rewardIncome = 0, salaryIncome = 0, depositedAmount = user.depositedAmount || 0;
