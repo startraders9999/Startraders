@@ -80,11 +80,8 @@ const Dashboard = () => {
         if (res.data.success && res.data.user) {
           const deposit = res.data.user.depositedAmount || 0;
           setInvestmentFund(deposit);
-          // Available Funds = referralIncome + tradingIncome + rewardIncome + salaryIncome
-          const available = (res.data.user.referralIncome || 0)
-            + (res.data.user.tradingIncome || 0)
-            + (res.data.user.rewardIncome || 0)
-            + (res.data.user.salaryIncome || 0);
+          // Available Funds = Total Balance - Deposit
+          const available = (res.data.user.balance || 0) - deposit;
           setAvailableFunds(available);
         } else {
           setAvailableFunds(0);
