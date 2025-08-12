@@ -17,10 +17,18 @@ router.get('/user/:userId', async (req, res) => {
     let tradingIncome = 0, referralIncome = 0, rewardIncome = 0, salaryIncome = 0, depositedAmount = user.depositedAmount || 0;
     transactions.forEach(txn => {
       const type = (txn.type || '').toLowerCase();
-      if (type === 'trading_income') tradingIncome += txn.amount;
-      if (type === 'referral_on_trading' || type === 'referral_income') referralIncome += txn.amount;
-      if (type === 'reward_income') rewardIncome += txn.amount;
-      if (type === 'salary_income') salaryIncome += txn.amount;
+      if (type === 'trading_income') tradingIncome += Number(txn.amount) || 0;
+      if (type === 'referral_on_trading' || type === 'referral_income') referralIncome += Number(txn.amount) || 0;
+      if (type === 'reward_income') rewardIncome += Number(txn.amount) || 0;
+      if (type === 'salary_income') salaryIncome += Number(txn.amount) || 0;
+    });
+    console.log('API DEBUG:', {
+      userId: user._id,
+      transactions,
+      tradingIncome,
+      referralIncome,
+      rewardIncome,
+      salaryIncome
     });
 
     res.json({
