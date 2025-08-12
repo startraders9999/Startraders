@@ -1,3 +1,5 @@
+// (Removed duplicate declarations)
+
 // Get user balance for dashboard
 router.get('/user/:userId', async (req, res) => {
   try {
