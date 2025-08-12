@@ -1,4 +1,8 @@
-// (Removed duplicate declarations)
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+const Admin = require('../models/admin');
+const jwt = require('jsonwebtoken');
 
 // Get user balance for dashboard
 router.get('/user/:userId', async (req, res) => {
@@ -33,12 +37,6 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user');
-const Admin = require('../models/admin');
-const jwt = require('jsonwebtoken');
-
 // Admin login as user
 router.post('/login-as-user', async (req, res) => {
   try {
