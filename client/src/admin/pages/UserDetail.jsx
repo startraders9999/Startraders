@@ -20,19 +20,38 @@ const UserDetail = () => {
 
   // Handler for Ban button
   const handleBan = () => {
-    if (window.confirm('Are you sure you want to ban this user?')) {
-      axios.post(`https://startraders-fullstack-9ayr.onrender.com/api/admin/ban-user`, { userId: id })
+    if (window.confirm('Kya aap user ko ban karna chahte hain?')) {
+      axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/ban-user', { userId: id })
         .then(res => {
           if (res.data.success) {
             alert('User banned successfully');
             setUser({ ...user, banned: true });
           } else {
-            alert('Failed to ban user');
+            alert(res.data.message || 'Failed to ban user');
           }
         })
         .catch(err => {
           console.error(err);
           alert('Error occurred while banning user');
+        });
+    }
+  };
+
+  // Handler for Delete User button
+  const handleDeleteUser = () => {
+    if (window.confirm('Kya aap user ko delete karna chahte hain?')) {
+      axios.delete('https://startraders-fullstack-9ayr.onrender.com/api/admin/delete-user', { data: { userId: id } })
+        .then(res => {
+          if (res.data.success) {
+            alert('User deleted successfully');
+            window.location.href = '/admin/users';
+          } else {
+            alert(res.data.message || 'Failed to delete user');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error occurred while deleting user');
         });
     }
   };
@@ -163,9 +182,9 @@ const UserDetail = () => {
       )}
 
       <div className="user-actions">
-        <button className="transfer-btn" onClick={handleTransfer}>Transfer</button>
-        <button className="ban-btn" onClick={handleBan}>Ban</button>
-        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
+  <button className="ban-btn" onClick={handleBan}>Ban</button>
+  <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
+  <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
       </div>
 
       <h3 className="user-details-heading">TRANSACTION HISTORY</h3>

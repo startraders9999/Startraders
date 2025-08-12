@@ -21,3 +21,28 @@ router.post('/login-as-user', async (req, res) => {
 });
 
 module.exports = router;
+// Admin ban user
+router.post('/ban-user', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ success: false, message: 'User ID required' });
+    const user = await User.findByIdAndUpdate(userId, { banned: true }, { new: true });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Admin delete user
+router.delete('/delete-user', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ success: false, message: 'User ID required' });
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
