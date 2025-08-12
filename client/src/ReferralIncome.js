@@ -47,6 +47,15 @@ const ReferralIncome = () => {
     levelStats[level].amount += transaction.amount || 0;
   });
 
+  // Sirf deposit wali referral income dikhane ke liye filter laga rahe hain
+  // Sirf deposit wali referral income dikhane ke liye strict filter
+  const filteredReferralData = referralData.filter(
+    transaction =>
+      transaction.description &&
+      transaction.description.toLowerCase().includes('deposit') &&
+      !transaction.description.toLowerCase().includes('trading')
+  );
+
   return (
     <div style={{ padding: '20px', color: 'white', background: 'transparent', minHeight: '100vh' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Direct Referral Income</h2>
@@ -92,12 +101,12 @@ const ReferralIncome = () => {
 
       {/* Recent Transactions */}
       <div>
-        <h3 style={{ marginBottom: '20px' }}>Recent Referral Income</h3>
-        {referralData.length === 0 ? (
+        <h3 style={{ marginBottom: '20px' }}>Referral Income History</h3>
+        {filteredReferralData.length === 0 ? (
           <div style={{ height: '0px', overflow: 'hidden' }}></div>
         ) : (
           <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            {referralData.slice(0, 20).map((transaction, index) => (
+            {filteredReferralData.slice(0, 20).map((transaction, index) => (
               <div key={index} style={{
                 background: '#2a2a4a',
                 padding: '15px',
