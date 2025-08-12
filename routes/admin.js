@@ -16,10 +16,10 @@ router.get('/user/:userId', async (req, res) => {
     // Calculate income breakdowns
     let tradingIncome = 0, referralIncome = 0, rewardIncome = 0, salaryIncome = 0, depositedAmount = user.depositedAmount || 0;
     transactions.forEach(txn => {
-      if (txn.type === 'trading_income') tradingIncome += txn.amount;
-      if (txn.type === 'referral_on_trading' || txn.type === 'referral_income') referralIncome += txn.amount;
-      if (txn.type === 'reward_income') rewardIncome += txn.amount;
-      if (txn.type === 'salary_income') salaryIncome += txn.amount;
+      if (txn.type === 'trading_income' || txn.type === 'Trading_income') tradingIncome += txn.amount;
+      if (txn.type === 'referral_on_trading' || txn.type === 'referral_income' || txn.type === 'Referral_income') referralIncome += txn.amount;
+      if (txn.type === 'reward_income' || txn.type === 'Reward_income') rewardIncome += txn.amount;
+      if (txn.type === 'salary_income' || txn.type === 'Salary_income') salaryIncome += txn.amount;
     });
 
     res.json({
