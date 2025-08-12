@@ -12,9 +12,9 @@ router.post('/login-as-user', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    // Generate JWT token for user
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
-    res.json({ success: true, token });
+  // Generate JWT token for user
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+  res.json({ success: true, token, user });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }

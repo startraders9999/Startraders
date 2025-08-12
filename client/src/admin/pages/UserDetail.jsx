@@ -41,9 +41,9 @@ const UserDetail = () => {
   const handleLoginAsUser = () => {
     axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/login-as-user', { userId: id })
       .then(res => {
-        if (res.data.success && res.data.token) {
-          // Save token and redirect to user dashboard
-          localStorage.setItem('userToken', res.data.token);
+        if (res.data.success && res.data.token && res.data.user) {
+          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
           window.location.href = '/dashboard';
         } else {
           alert('Login as user failed');
