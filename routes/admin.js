@@ -27,7 +27,9 @@ router.post('/update-password', async (req, res) => {
   try {
     const { username, newPassword } = req.body;
     if (!username || !newPassword) return res.status(400).json({ success: false, message: 'Username and new password required' });
-    const user = await User.findOneAndUpdate({ name: username }, { password: newPassword }, { new: true });
+  const bcrypt = require('bcryptjs');
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  const user = await User.findOneAndUpdate({ name: username }, { password: hashedPassword }, { new: true });
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, user });
   } catch (err) {
