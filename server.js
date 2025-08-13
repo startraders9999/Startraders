@@ -1,3 +1,6 @@
+// Admin User Management APIs (ban, delete, login as user)
+const adminUserRouter = require('./server/routes/adminUser');
+app.use(adminUserRouter);
 const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 const express = require('express');
