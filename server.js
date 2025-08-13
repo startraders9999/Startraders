@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 // ...existing code...
-// Register admin user management routes after all middleware and before error handling
+// ...existing code...
+// Register admin user management routes after all middleware and after app is defined
+// Place this at the end of all app.use() and route definitions, before error handling (if any)
 const adminUserRouter = require('./server/routes/adminUser');
 app.use(adminUserRouter);
 const express = require('express');
