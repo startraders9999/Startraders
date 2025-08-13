@@ -1,6 +1,3 @@
-// Income APIs (Salary & Reward)
-const incomeRouter = require('./routes/income');
-app.use('/api', incomeRouter);
 const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 const express = require('express');
@@ -11,6 +8,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
+// Income APIs (Salary & Reward)
+const incomeRouter = require('./routes/income');
+app.use('/api', incomeRouter);
 
 // Enhanced CORS Configuration
 const corsOptions = {
