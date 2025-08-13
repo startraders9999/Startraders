@@ -44,7 +44,7 @@ const ReferralIncome = () => {
       levelStats[level] = { count: 0, amount: 0 };
     }
     levelStats[level].count++;
-    levelStats[level].amount += transaction.amount || 0;
+    levelStats[level].amount += typeof transaction.amount === 'number' ? transaction.amount : 0;
   });
 
   return (
@@ -52,79 +52,10 @@ const ReferralIncome = () => {
       <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Direct Referral Income</h2>
 
       {/* Total Summary */}
-      <div style={{ 
-        background: '#1a1a3a', 
-        padding: '20px', 
-        borderRadius: '10px', 
-        marginBottom: '30px',
-        textAlign: 'center'
-      }}>
-        <h3 style={{ color: '#FFD700', marginBottom: '10px' }}>
-          Total Referral Earnings: ${totalReferralIncome.toFixed(2)}
-        </h3>
-        <p style={{ color: '#ccc' }}>
-          Total Transactions: {referralData.length}
-        </p>
-      </div>
 
-      {/* Level Breakdown */}
-      {Object.keys(levelStats).length > 0 && (
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ marginBottom: '20px' }}>Level Income Breakdown</h3>
-          {Object.entries(levelStats).map(([level, stats]) => (
-            <div key={level} style={{
-              background: '#2a2a4a',
-              padding: '15px',
-              borderRadius: '8px',
-              marginBottom: '10px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span>Level {level}</span>
-              <span style={{ color: '#4CAF50' }}>
-                {stats.count} transactions - ${stats.amount.toFixed(2)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      import React, { useEffect, useState } from 'react';
+      import './ReferralIncome.css';
+      import axios from 'axios';
 
-      {/* Recent Transactions */}
-      <div>
-        <h3 style={{ marginBottom: '20px' }}>Recent Referral Income</h3>
-        {referralData.length === 0 ? (
-          <div style={{ height: '0px', overflow: 'hidden' }}></div>
-        ) : (
-          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            {referralData.slice(0, 20).map((transaction, index) => (
-              <div key={index} style={{
-                background: '#2a2a4a',
-                padding: '15px',
-                borderRadius: '8px',
-                marginBottom: '10px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <span style={{ color: '#FFD700' }}>+${transaction.amount?.toFixed(2)}</span>
-                  <span style={{ color: '#888', fontSize: '12px' }}>
-                    {new Date(transaction.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div style={{ fontSize: '14px', color: '#ccc' }}>
-                  {transaction.description} - Level {transaction.level || 1}
-                </div>
-                {transaction.fromUser && (
-                  <div style={{ fontSize: '12px', color: '#888' }}>
-                    From: {transaction.fromUser.name || transaction.fromUser.email}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
-export default ReferralIncome;
+

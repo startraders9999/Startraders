@@ -21,7 +21,6 @@ async function runDailyROIJob() {
       // Calculate ROI for this deposit
       let roi = 0;
       if (durationUnit === 'minutes') {
-        roi = deposit.amount * (roiPercent / 100) * (duration / (24 * 60));
       } else if (durationUnit === 'hours') {
         roi = deposit.amount * (roiPercent / 100) * (duration / 24);
       } else {
@@ -34,8 +33,9 @@ async function runDailyROIJob() {
       if (roi > 0) {
         const user = await User.findById(deposit.userId);
         if (!user) continue;
-        user.balance += roi;
-        user.wallet += roi;
+  user.balance += roi;
+  user.wallet += roi;
+  user.availableFund = (user.availableFund || 0) + roi; // Add to availableFund
         await user.save();
         deposit.totalPaid += roi;
         if (deposit.totalPaid >= deposit.amount * 2) deposit.isActive = false;
@@ -44,6 +44,7 @@ async function runDailyROIJob() {
           userId: user._id,
           amount: roi,
           type: 'trading_income',
+          fundType: 'availableFund',
           description: `Trading Income (1% on $${deposit.amount} deposit)`
         });
 
@@ -59,9 +60,10 @@ async function runDailyROIJob() {
           
           const income = roi * referralLevels[level];
           
-          // Add to referrer's balance
+          // Add to referrer's balance and availableFund
           refUser.balance += income;
           refUser.referralIncome = (refUser.referralIncome || 0) + income;
+          refUser.availableFund = (refUser.availableFund || 0) + income;
           await refUser.save();
           
           // Create transaction
@@ -71,6 +73,7 @@ async function runDailyROIJob() {
             toUser: refUser._id,
             amount: income,
             type: "referral_on_trading",
+            fundType: 'availableFund',
             level: level + 1,
             description: `Level ${level + 1} Referral Income on Trading (${(referralLevels[level] * 100).toFixed(0)}%)`
           });
@@ -118,26 +121,24 @@ async function calculateReferralIncomeOnTrading(userId, tradingAmount) {
       if (!refUser) break; // Invalid referrer
       
       const income = tradingAmount * referralLevels[level];
-      
-      // ✅ Add income to referrer's balance (NOT to the original user)
+      // Add to referrer's balance and availableFund
       refUser.balance += income;
       refUser.referralIncome = (refUser.referralIncome || 0) + income;
+      refUser.availableFund = (refUser.availableFund || 0) + income;
       await refUser.save();
-      
-      // ✅ Create transaction record
+      // Create transaction record
       await new Transaction({
         userId: refUser._id,
         fromUser: userId, // Original user who earned trading income
         toUser: refUser._id, // Referrer who gets commission
         amount: income,
         type: "referral_on_trading",
+        fundType: 'availableFund',
         level: level + 1,
         description: `Level ${level + 1} Referral Income on Trading (${(referralLevels[level] * 100).toFixed(0)}%)`
-      });
-      
+      }).save();
       console.log(`Level ${level + 1} referral income: $${income.toFixed(2)} to ${refUser.name} (from ${user.name}'s $${tradingAmount} trading income)`);
-      
-      // ✅ Move to next level (referrer's referrer)
+      // Move to next level (referrer's referrer)
       refUserId = refUser.referredBy;
     }
   } catch (error) {

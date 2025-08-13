@@ -5,11 +5,82 @@ import axios from 'axios';
 import './UserDetail.css';
 
 const UserDetail = () => {
+<<<<<<< HEAD
+=======
+  // ...existing code...
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('credit');
+<<<<<<< HEAD
+=======
+  const [showTransferPopup, setShowTransferPopup] = useState(false);
+  const [transferAmount, setTransferAmount] = useState('');
+
+  // Handler for Transfer button
+  const handleTransfer = () => {
+  setShowTransferPopup(true);
+  };
+
+  // Handler for Ban button
+  const handleBan = () => {
+    if (window.confirm('Kya aap user ko ban karna chahte hain?')) {
+      axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/ban-user', { userId: id })
+        .then(res => {
+          if (res.data.success) {
+            alert('User banned successfully');
+            setUser({ ...user, banned: true });
+          } else {
+            alert(res.data.message || 'Failed to ban user');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error occurred while banning user');
+        });
+    }
+  };
+
+  // Handler for Delete User button
+  // ...existing code...
+  const handleDeleteUser = () => {
+    if (window.confirm('Kya aap user ko delete karna chahte hain?')) {
+      axios.delete('https://startraders-fullstack-9ayr.onrender.com/api/admin/delete-user', { data: { userId: id } })
+        .then(res => {
+          if (res.data.success) {
+            alert('User deleted successfully');
+            window.location.href = '/admin/users';
+          } else {
+            alert(res.data.message || 'Failed to delete user');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error occurred while deleting user');
+        });
+    }
+  };
+
+  // Handler for Login as User button
+  const handleLoginAsUser = () => {
+    axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/login-as-user', { userId: id })
+      .then(res => {
+        if (res.data.success && res.data.token && res.data.user) {
+          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+          window.location.href = '/dashboard';
+        } else {
+          alert('Login as user failed');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error occurred while logging in as user');
+      });
+  };
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
 
   useEffect(() => {
     axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${id}`)
@@ -59,6 +130,46 @@ const UserDetail = () => {
         </p>
       </div>
 
+<<<<<<< HEAD
+=======
+      {/* Transfer Popup */}
+      {showTransferPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Transfer Amount</h3>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={transferAmount}
+              onChange={e => setTransferAmount(e.target.value)}
+            />
+            <div className="popup-actions">
+              <button onClick={() => {
+                if (!transferAmount || isNaN(transferAmount)) return alert('Enter valid amount');
+                axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/transfer', {
+                  userId: id,
+                  amount: parseFloat(transferAmount)
+                }).then(res => {
+                  if (res.data.success) {
+                    alert('Transfer successful');
+                    setUser(res.data.user);
+                    setShowTransferPopup(false);
+                    setTransferAmount('');
+                  } else {
+                    alert('Transfer failed');
+                  }
+                }).catch(err => {
+                  console.error(err);
+                  alert('Error occurred during transfer');
+                });
+              }}>Submit</button>
+              <button onClick={() => setShowTransferPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
       {showPopup && (
         <div className="popup">
           <div className="popup-content">
@@ -82,9 +193,15 @@ const UserDetail = () => {
       )}
 
       <div className="user-actions">
+<<<<<<< HEAD
         <button className="transfer-btn">Transfer</button>
         <button className="ban-btn">Ban</button>
         <button className="transfer-btn">Login as User</button>
+=======
+        <button className="ban-btn" onClick={handleBan}>Ban</button>
+        <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
+        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
       </div>
 
       <h3 className="user-details-heading">TRANSACTION HISTORY</h3>

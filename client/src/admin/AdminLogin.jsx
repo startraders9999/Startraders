@@ -10,7 +10,11 @@ function AdminLogin() {
     e.preventDefault();
 
     // ✅ Hardcoded admin credentials check
+<<<<<<< HEAD
     if (username === 'admin' && password === 'admin') {
+=======
+    if (username === 'starking' && password === 'star@lokesh') {
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
       // ✅ Save login token in localStorage
       localStorage.setItem('admin-auth', 'true');
 

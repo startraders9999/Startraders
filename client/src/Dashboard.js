@@ -31,6 +31,10 @@ const Dashboard = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
   // Wallet balances
   const [availableFunds, setAvailableFunds] = useState(0);
+<<<<<<< HEAD
+=======
+  const [investmentFund, setInvestmentFund] = useState(0);
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
   const [referralIncome, setReferralIncome] = useState(0);
   const [referralTradingIncome, setReferralTradingIncome] = useState(0);
   // Direct referral status
@@ -72,6 +76,7 @@ const Dashboard = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user._id) return;
     
+<<<<<<< HEAD
     // Available Funds (get user balance from admin API)
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
@@ -83,6 +88,21 @@ const Dashboard = () => {
         }
       })
       .catch(() => setAvailableFunds(0));
+=======
+    // Available Funds & Investment Fund (get from backend API directly)
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
+      .then(res => {
+        if (res.data.success && res.data.user) {
+          setAvailableFunds(res.data.user.availableFund || 0);
+          setInvestmentFund(res.data.user.investmentFund || 0);
+        } else {
+          setAvailableFunds(0);
+          setInvestmentFund(0);
+        }
+      })
+      .catch(() => { setAvailableFunds(0); setInvestmentFund(0); });
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
       
     // Referral Income
     axios
@@ -264,6 +284,14 @@ const Dashboard = () => {
                 Available Funds<br />
                 ${availableFunds.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </div>
+<<<<<<< HEAD
+=======
+              <div className="wallet-card" style={{cursor:'default'}}>
+                <FaWallet className="wallet-icon" />
+                Investment Fund<br />
+                ${investmentFund.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </div>
+>>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
               <div className="wallet-card" onClick={() => navigate('/direct-referral-income')} style={{cursor:'pointer'}}>
                 <FaWallet className="wallet-icon" />
                 Referral Income<br />

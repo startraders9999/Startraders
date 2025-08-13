@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 
+
 const transactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   fromUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // For referral income
   toUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // For referral income
   amount: Number,
   type: String, // e.g. trading_income, referral_on_deposit, referral_on_trading
+  fundType: { type: String, enum: ['investmentFund', 'availableFund'], required: false }, // Track which fund is affected
   level: { type: Number, default: null }, // 1,2,3 for referral
   description: String,
 }, { timestamps: true });
