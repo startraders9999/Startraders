@@ -36,6 +36,7 @@ async function runDailyROIJob() {
         if (!user) continue;
         user.balance += roi;
         user.wallet += roi;
+        user.availableFund = (user.availableFund || 0) + roi; // Add to availableFund
         await user.save();
         deposit.totalPaid += roi;
         if (deposit.totalPaid >= deposit.amount * 2) deposit.isActive = false;
@@ -44,6 +45,7 @@ async function runDailyROIJob() {
           userId: user._id,
           amount: roi,
           type: 'trading_income',
+          fundType: 'availableFund',
           description: `Trading Income (1% on $${deposit.amount} deposit)`
         });
 
@@ -59,9 +61,10 @@ async function runDailyROIJob() {
           
           const income = roi * referralLevels[level];
           
-          // Add to referrer's balance
+          // Add to referrer's balance and availableFund
           refUser.balance += income;
           refUser.referralIncome = (refUser.referralIncome || 0) + income;
+          refUser.availableFund = (refUser.availableFund || 0) + income;
           await refUser.save();
           
           // Create transaction
@@ -71,6 +74,7 @@ async function runDailyROIJob() {
             toUser: refUser._id,
             amount: income,
             type: "referral_on_trading",
+            fundType: 'availableFund',
             level: level + 1,
             description: `Level ${level + 1} Referral Income on Trading (${(referralLevels[level] * 100).toFixed(0)}%)`
           });
@@ -119,9 +123,10 @@ async function calculateReferralIncomeOnTrading(userId, tradingAmount) {
       
       const income = tradingAmount * referralLevels[level];
       
-      // ✅ Add income to referrer's balance (NOT to the original user)
+      // ✅ Add income to referrer's balance and availableFund
       refUser.balance += income;
       refUser.referralIncome = (refUser.referralIncome || 0) + income;
+      refUser.availableFund = (refUser.availableFund || 0) + income;
       await refUser.save();
       
       // ✅ Create transaction record
@@ -131,6 +136,7 @@ async function calculateReferralIncomeOnTrading(userId, tradingAmount) {
         toUser: refUser._id, // Referrer who gets commission
         amount: income,
         type: "referral_on_trading",
+        fundType: 'availableFund',
         level: level + 1,
         description: `Level ${level + 1} Referral Income on Trading (${(referralLevels[level] * 100).toFixed(0)}%)`
       });

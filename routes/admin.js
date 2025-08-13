@@ -19,24 +19,22 @@ router.get('/user/:userId', async (req, res) => {
       ]
     });
 
-    // Calculate income breakdowns
-    let tradingIncome = 0, referralIncome = 0, rewardIncome = 0, salaryIncome = 0, depositedAmount = user.depositedAmount || 0;
+    // Calculate income breakdowns (each type separate)
+    let tradingIncome = 0, referralIncome = 0, referralOnTradingIncome = 0, rewardIncome = 0, salaryIncome = 0, depositedAmount = user.depositedAmount || 0;
+    let availableFund = 0, investmentFund = 0;
     transactions.forEach(txn => {
       const type = (txn.type || '').toLowerCase();
       if (type === 'trading_income') tradingIncome += Number(txn.amount) || 0;
-      if (type === 'referral_on_trading' || type === 'referral_income') referralIncome += Number(txn.amount) || 0;
+      if (type === 'referral_income') referralIncome += Number(txn.amount) || 0;
+      if (type === 'referral_on_trading') referralOnTradingIncome += Number(txn.amount) || 0;
       if (type === 'reward_income') rewardIncome += Number(txn.amount) || 0;
       if (type === 'salary_income') salaryIncome += Number(txn.amount) || 0;
+      if (txn.fundType === 'availableFund') availableFund += Number(txn.amount) || 0;
+      if (txn.fundType === 'investmentFund') investmentFund += Number(txn.amount) || 0;
     });
-    console.log('API DEBUG:', {
-      userId: user._id,
-      transactions,
-      tradingIncome,
-      referralIncome,
-      rewardIncome,
-      salaryIncome
-    });
-
+    // Fallback: If user.availableFund/investmentFund exists, use that
+    if (user.availableFund !== undefined) availableFund = user.availableFund;
+    if (user.investmentFund !== undefined) investmentFund = user.investmentFund;
     res.json({
       success: true,
       user: {
@@ -44,8 +42,11 @@ router.get('/user/:userId', async (req, res) => {
         depositedAmount,
         tradingIncome,
         referralIncome,
+        referralOnTradingIncome,
         rewardIncome,
-        salaryIncome
+        salaryIncome,
+        availableFund,
+        investmentFund
       }
     });
   } catch (err) {

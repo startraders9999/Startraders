@@ -1,3 +1,6 @@
+// Income APIs (Salary & Reward)
+const incomeRouter = require('./routes/income');
+app.use('/api', incomeRouter);
 const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 const express = require('express');
@@ -1324,20 +1327,22 @@ app.post('/api/admin/force-trading-income', async (req, res) => {
       }
 
       if (finalRoi > 0) {
-        // Add trading income to user
+        // Add trading income to user (Available Fund)
         user.balance += finalRoi;
         user.wallet += finalRoi;
+        user.availableFund = (user.availableFund || 0) + finalRoi;
         await user.save();
 
         deposit.totalPaid += finalRoi;
         if (deposit.totalPaid >= deposit.amount * 2) deposit.isActive = false;
         await deposit.save();
 
-        // Create trading income transaction
+        // Create trading income transaction (Available Fund)
         await new Transaction({
           userId: user._id,
           amount: finalRoi,
           type: 'trading_income',
+          fundType: 'availableFund',
           description: `Manual Trading Income (1% on $${deposit.amount} deposit)`
         }).save();
 
@@ -1345,39 +1350,35 @@ app.post('/api/admin/force-trading-income', async (req, res) => {
         const referralLevels = [0.15, 0.12, 0.10, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02];
         let refUserId = user.referredBy;
         const referralResults = [];
-        
         for (let level = 0; level < 10; level++) {
           if (!refUserId) break;
-          
           const refUser = await User.findById(refUserId);
           if (!refUser) break;
-          
           const income = finalRoi * referralLevels[level];
-          
-          // Add to referrer's balance
+          // Add to referrer's balance and availableFund
           refUser.balance += income;
           refUser.referralIncome = (refUser.referralIncome || 0) + income;
+          refUser.availableFund = (refUser.availableFund || 0) + income;
           await refUser.save();
-          
-          // Create transaction
+          // Create transaction (Available Fund)
           await new Transaction({
             userId: refUser._id,
             fromUser: user._id,
             toUser: refUser._id,
             amount: income,
             type: "referral_on_trading",
+            fundType: 'availableFund',
             level: level + 1,
             description: `Level ${level + 1} Referral Income on Trading (${(referralLevels[level] * 100).toFixed(0)}%) - Manual`
           }).save();
-          
           referralResults.push({
             level: level + 1,
             referrerName: refUser.name,
             amount: income,
             percentage: (referralLevels[level] * 100).toFixed(0) + '%'
           });
+          refUserId = refUser.referredBy;
         }
-
         results.push({
           depositAmount: deposit.amount,
           tradingIncome: finalRoi,

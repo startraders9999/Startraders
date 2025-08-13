@@ -73,16 +73,13 @@ const Dashboard = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user._id) return;
     
-    // Available Funds (get user balance from admin API)
+    // Available Funds & Investment Fund (get from backend API directly)
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
       .then(res => {
         if (res.data.success && res.data.user) {
-          const deposit = res.data.user.depositedAmount || 0;
-          setInvestmentFund(deposit);
-          // Available Funds = Total Balance - Deposit
-          const available = (res.data.user.balance || 0) - deposit;
-          setAvailableFunds(available);
+          setAvailableFunds(res.data.user.availableFund || 0);
+          setInvestmentFund(res.data.user.investmentFund || 0);
         } else {
           setAvailableFunds(0);
           setInvestmentFund(0);
