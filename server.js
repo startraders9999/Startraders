@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken'); // Add at top if not present
+require('dotenv').config();
 // ...existing code...
-// Register admin user management routes after app is defined
+// Register admin user management routes after all middleware and before error handling
 const adminUserRouter = require('./server/routes/adminUser');
 app.use(adminUserRouter);
-require('dotenv').config();
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
