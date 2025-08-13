@@ -32,9 +32,7 @@ router.get('/user/:userId', async (req, res) => {
       if (txn.fundType === 'availableFund') availableFund += Number(txn.amount) || 0;
       if (txn.fundType === 'investmentFund') investmentFund += Number(txn.amount) || 0;
     });
-    // Fallback: If user.availableFund/investmentFund exists, use that
-    if (user.availableFund !== undefined) availableFund = user.availableFund;
-    if (user.investmentFund !== undefined) investmentFund = user.investmentFund;
+    // Always calculate availableFund and investmentFund from transactions only
     res.json({
       success: true,
       user: {
