@@ -1,11 +1,60 @@
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './UserDetail.css';
 
 const UserDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  // Ban user handler
+  const handleBanUser = () => {
+    if(window.confirm('Are you sure you want to ban this user?')) {
+      axios.post(`https://startraders-fullstack-9ayr.onrender.com/api/admin/ban-user`, { userId: id })
+        .then(res => {
+          if(res.data.success) {
+            alert('User banned successfully');
+            setUser({ ...user, banned: true });
+          } else {
+            alert('Failed to ban user');
+          }
+        })
+        .catch(() => alert('Error banning user'));
+    }
+  };
+
+  // Delete user handler
+  const handleDeleteUser = () => {
+    if(window.confirm('Are you sure you want to delete this user?')) {
+      axios.delete(`https://startraders-fullstack-9ayr.onrender.com/api/admin/delete-user/${id}`)
+        .then(res => {
+          if(res.data.success) {
+            alert('User deleted successfully');
+            navigate('/admin/users');
+          } else {
+            alert('Failed to delete user');
+          }
+        })
+        .catch(() => alert('Error deleting user'));
+    }
+  };
+
+  // Login as user handler
+  const handleLoginAsUser = () => {
+    // This should call an API to get a user session token, then redirect
+    axios.post(`https://startraders-fullstack-9ayr.onrender.com/api/admin/login-as-user`, { userId: id })
+      .then(res => {
+        if(res.data.success && res.data.token) {
+          // Save token and redirect to user dashboard
+          localStorage.setItem('userToken', res.data.token);
+          window.open('/dashboard', '_blank');
+        } else {
+          alert('Failed to login as user');
+        }
+      })
+      .catch(() => alert('Error logging in as user'));
+  };
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [amount, setAmount] = useState('');
@@ -83,9 +132,9 @@ const UserDetail = () => {
 
       <div className="user-actions">
         <button className="transfer-btn">Transfer</button>
-        <button className="ban-btn">Ban</button>
-        <button className="transfer-btn">Login as User</button>
-        <button className="delete-btn">Delete</button>
+        <button className="ban-btn" onClick={handleBanUser}>Ban</button>
+        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
+        <button className="delete-btn" onClick={handleDeleteUser}>Delete</button>
       </div>
 
       <h3 className="user-details-heading">TRANSACTION HISTORY</h3>
