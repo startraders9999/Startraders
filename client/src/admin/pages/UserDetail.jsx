@@ -5,23 +5,17 @@ import axios from 'axios';
 import './UserDetail.css';
 
 const UserDetail = () => {
-<<<<<<< HEAD
-=======
-  // ...existing code...
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('credit');
-<<<<<<< HEAD
-=======
   const [showTransferPopup, setShowTransferPopup] = useState(false);
   const [transferAmount, setTransferAmount] = useState('');
 
   // Handler for Transfer button
   const handleTransfer = () => {
-  setShowTransferPopup(true);
+    setShowTransferPopup(true);
   };
 
   // Handler for Ban button
@@ -44,7 +38,6 @@ const UserDetail = () => {
   };
 
   // Handler for Delete User button
-  // ...existing code...
   const handleDeleteUser = () => {
     if (window.confirm('Kya aap user ko delete karna chahte hain?')) {
       axios.delete('https://startraders-fullstack-9ayr.onrender.com/api/admin/delete-user', { data: { userId: id } })
@@ -80,7 +73,6 @@ const UserDetail = () => {
         alert('Error occurred while logging in as user');
       });
   };
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
 
   useEffect(() => {
     axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${id}`)
@@ -130,8 +122,78 @@ const UserDetail = () => {
         </p>
       </div>
 
-<<<<<<< HEAD
-=======
+      {/* Transfer Popup */}
+      {showTransferPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Transfer Amount</h3>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={transferAmount}
+              onChange={e => setTransferAmount(e.target.value)}
+            />
+            <div className="popup-actions">
+              <button onClick={() => {
+                if (!transferAmount || isNaN(transferAmount)) return alert('Enter valid amount');
+                axios.post('https://startraders-fullstack-9ayr.onrender.com/api/admin/transfer', {
+                  userId: id,
+                  amount: parseFloat(transferAmount)
+                }).then(res => {
+                  if (res.data.success) {
+                    alert('Transfer successful');
+                    setUser(res.data.user);
+                    setShowTransferPopup(false);
+                    setTransferAmount('');
+                  } else {
+                    alert('Transfer failed');
+                  }
+                }).catch(err => {
+                  console.error(err);
+                  alert('Error occurred during transfer');
+                });
+              }}>Submit</button>
+              <button onClick={() => setShowTransferPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default UserDetail;
+
+
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Update Balance</h3>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="credit">Credit</option>
+              <option value="debit">Debit</option>
+            </select>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <div className="popup-actions">
+              <button onClick={handleBalanceUpdate}>Submit</button>
+              <button onClick={() => setShowPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="user-actions">
+        <button className="transfer-btn" onClick={handleTransfer}>Transfer</button>
+        <button className="ban-btn" onClick={handleBan}>Ban</button>
+        <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
+        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
+      </div>
+
       {/* Transfer Popup */}
       {showTransferPopup && (
         <div className="popup">
@@ -169,7 +231,7 @@ const UserDetail = () => {
         </div>
       )}
 
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
+      {/* Update Balance Popup */}
       {showPopup && (
         <div className="popup">
           <div className="popup-content">
@@ -191,31 +253,3 @@ const UserDetail = () => {
           </div>
         </div>
       )}
-
-      <div className="user-actions">
-<<<<<<< HEAD
-        <button className="transfer-btn">Transfer</button>
-        <button className="ban-btn">Ban</button>
-        <button className="transfer-btn">Login as User</button>
-=======
-        <button className="ban-btn" onClick={handleBan}>Ban</button>
-        <button className="delete-btn" style={{marginLeft: '10px', background: 'darkred', color: 'white'}} onClick={handleDeleteUser}>Delete User</button>
-        <button className="transfer-btn" onClick={handleLoginAsUser}>Login as User</button>
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
-      </div>
-
-      <h3 className="user-details-heading">TRANSACTION HISTORY</h3>
-      <div className="user-info" style={{ background: 'transparent', padding: '10px', borderRadius: '5px' }}>
-        <p>No transactions found.</p>
-      </div>
-
-      <div className="boosting-section">
-        <h3 className="user-details-heading">BOOSTING</h3>
-        <div className="boost-bar"></div>
-        <p className="countdown">Boosting ends in: 20 hr 5 min</p>
-      </div>
-    </div>
-  );
-};
-
-export default UserDetail;

@@ -52,10 +52,8 @@ const ReferralIncome = () => {
       <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Direct Referral Income</h2>
 
       {/* Total Summary */}
-
-      import React, { useEffect, useState } from 'react';
-      import './ReferralIncome.css';
-      import axios from 'axios';
+  {/* Total Summary */}
 
 
 
+ 

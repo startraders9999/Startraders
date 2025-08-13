@@ -14,13 +14,8 @@ import axios from 'axios';
 import Sidebar from './components/SideBar';
 
 const Dashboard = () => {
-<<<<<<< HEAD
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-=======
   const [investmentFund, setInvestmentFund] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // ...existing code...
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
   const menuItems = [
