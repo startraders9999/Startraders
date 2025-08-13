@@ -2097,6 +2097,11 @@ try {
   }
 }
 
+
+// Register admin user management routes at the very end, after all other routes and middleware
+const adminUserRouter = require('./server/routes/adminUser');
+app.use(adminUserRouter);
+
 // Serve React frontend (production build) - must be LAST
 const clientBuildPath = path.join(__dirname, 'client', 'build');
 
