@@ -85,6 +85,7 @@ const UserDetail = () => {
         <button className="transfer-btn">Transfer</button>
         <button className="ban-btn">Ban</button>
         <button className="transfer-btn">Login as User</button>
+        <button className="delete-btn">Delete</button>
       </div>
 
       <h3 className="user-details-heading">TRANSACTION HISTORY</h3>
