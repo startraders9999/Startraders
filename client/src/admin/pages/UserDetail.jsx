@@ -45,8 +45,9 @@ const UserDetail = () => {
     // This should call an API to get a user session token, then redirect
     axios.post(`https://startraders-fullstack-9ayr.onrender.com/api/admin/login-as-user`, { userId: id })
       .then(res => {
-        if(res.data.success && res.data.token) {
-          // Save token and redirect to user dashboard
+        if(res.data.success && res.data.token && res.data.user) {
+          // Save user and token, then redirect to user dashboard
+          localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem('userToken', res.data.token);
           window.open('/dashboard', '_blank');
         } else {
