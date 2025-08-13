@@ -71,40 +71,6 @@ const Dashboard = () => {
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user._id) return;
-<<<<<<< HEAD
-    axios
-      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
-      .then(res => {
-        if (res.data.success && res.data.user && typeof res.data.user.balance === 'number') {
-          setAvailableFunds(res.data.user.balance);
-        } else {
-          setAvailableFunds(0);
-        }
-      })
-      .catch(() => setAvailableFunds(0));
-    axios
-      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-income/${user._id}`)
-      .then(res => {
-        if (res.data.success && typeof res.data.totalReferralIncome === 'string') {
-          setReferralIncome(parseFloat(res.data.totalReferralIncome));
-        } else if (res.data.success && typeof res.data.totalReferralIncome === 'number') {
-          setReferralIncome(res.data.totalReferralIncome);
-        } else {
-          setReferralIncome(0);
-        }
-      })
-      .catch(() => setReferralIncome(0));
-    axios
-      .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/${user._id}`)
-      .then(res => {
-        if (res.data.success && typeof res.data.totalIncome === 'number') {
-          setReferralTradingIncome(res.data.totalIncome);
-        } else {
-          setReferralTradingIncome(0);
-        }
-      })
-      .catch(() => setReferralTradingIncome(0));
-=======
     // Get deposit amount (Investment Fund)
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
@@ -145,7 +111,46 @@ const Dashboard = () => {
       setReferralIncome(0);
       setReferralTradingIncome(0);
     });
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
+    // Get deposit amount (Investment Fund)
+    axios
+      .get(`https://startraders-fullstack-9ayr.onrender.com/api/admin/user/${user._id}`)
+      .then(res => {
+        if (res.data.success && res.data.user) {
+          setInvestmentFund(typeof res.data.user.depositedAmount === 'number' ? res.data.user.depositedAmount : 0);
+        } else {
+          setInvestmentFund(0);
+        }
+      })
+      .catch(() => { setInvestmentFund(0); });
+    // Get all incomes for available funds
+    Promise.all([
+      axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-income/${user._id}`),
+      axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/referral-trading-income/${user._id}`),
+      axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/salary-income/${user._id}`),
+      axios.get(`https://startraders-fullstack-9ayr.onrender.com/api/user/reward-income?userId=${user._id}`)
+    ]).then(([referralRes, tradingRes, salaryRes, rewardRes]) => {
+      let referral = 0, trading = 0, salary = 0, reward = 0;
+      if (referralRes.data.success) {
+        referral = parseFloat(referralRes.data.totalReferralIncome) || 0;
+        setReferralIncome(referral);
+      } else setReferralIncome(0);
+      if (tradingRes.data.success) {
+        trading = parseFloat(tradingRes.data.totalIncome) || 0;
+        setReferralTradingIncome(trading);
+      } else setReferralTradingIncome(0);
+      if (salaryRes.data.success) {
+        salary = parseFloat(salaryRes.data.totalSalaryIncome) || 0;
+      }
+      if (rewardRes.data.success) {
+        reward = parseFloat(rewardRes.data.totalRewardEarned) || 0;
+      }
+      // Available funds = referral + trading + salary + reward
+      setAvailableFunds(referral + trading + salary + reward);
+    }).catch(() => {
+      setAvailableFunds(0);
+      setReferralIncome(0);
+      setReferralTradingIncome(0);
+    });
     axios
       .get(`https://startraders-fullstack-9ayr.onrender.com/api/user/support-settings`)
       .then(res => {
@@ -177,11 +182,7 @@ const Dashboard = () => {
     });
   };
 
-<<<<<<< HEAD
-=======
   // ...existing code...
-
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
   return (
     <>
       {/* Kumbhalgarh Popup - Only after login */}
@@ -212,10 +213,6 @@ const Dashboard = () => {
       )}
       <UniversalResponsiveLayout>
         {/* Hamburger/Menu button for sidebar toggle (left top) */}
-<<<<<<< HEAD
-=======
-  {/* ...existing code... */}
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
         <button
           className="sidebar-hamburger"
           style={{position:'fixed',top:18,right:18,zIndex:1000,background:'none',border:'none',cursor:'pointer'}}
@@ -301,22 +298,6 @@ const Dashboard = () => {
                 <div className="wallet-title">Your wallet</div>
                 <div className="wallet-desc">here you will check wallet transactions.</div>
                 <div className="wallet-cards">
-<<<<<<< HEAD
-                <div className="wallet-card" onClick={() => navigate('/transactions')} style={{cursor:'pointer'}}>
-                  <FaWallet className="wallet-icon" />
-                  Available Funds<br />
-                  ${availableFunds.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                </div>
-                <div className="wallet-card" onClick={() => navigate('/direct-referral-income')} style={{cursor:'pointer'}}>
-                  <FaWallet className="wallet-icon" />
-                  Referral Income<br />
-                  ${referralIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                </div>
-                <div className="wallet-card" onClick={() => navigate('/referral-on-trading')} style={{cursor:'pointer'}}>
-                  <FaWallet className="wallet-icon" />
-                  Referral on Trading Income<br />${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                </div>
-=======
                   <div className="wallet-card" onClick={() => navigate('/transactions')} style={{cursor:'pointer'}}>
                     <FaWallet className="wallet-icon" />
                     Available Funds<br />
@@ -336,7 +317,6 @@ const Dashboard = () => {
                     <FaWallet className="wallet-icon" />
                     Referral on Trading Income<br />${referralTradingIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </div>
->>>>>>> 95fe3dd50bd136357b217773a310a5468855d3dd
                 </div>
                 <div className="wallet-btn-row">
                   <button className="wallet-btn" style={{background:'#8c4be7'}} onClick={() => navigate('/deposit')}>Deposit</button>
