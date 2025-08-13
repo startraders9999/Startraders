@@ -116,6 +116,9 @@ const ReferralIncome = () => {
       </div>
     </div>
   );
- 
+}
+
+export default ReferralIncome;
+
 
 
