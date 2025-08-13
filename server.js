@@ -1,7 +1,8 @@
-// Admin User Management APIs (ban, delete, login as user)
+const jwt = require('jsonwebtoken'); // Add at top if not present
+// ...existing code...
+// Register admin user management routes after app is defined
 const adminUserRouter = require('./server/routes/adminUser');
 app.use(adminUserRouter);
-const jwt = require('jsonwebtoken'); // Add at top if not present
 require('dotenv').config();
 const express = require('express');
 const cloudinary = require('cloudinary').v2;
