@@ -8,8 +8,6 @@ const userSchema = new mongoose.Schema({
   balance: { type: Number, default: 0 },
   wallet: { type: Number, default: 0 }, // For daily ROI calculation and display
   depositedAmount: { type: Number, default: 0 }, // User's principal deposit
-  investmentFund: { type: Number, default: 0 }, // Only deposit & reinvested returns
-  availableFund: { type: Number, default: 0 }, // All non-deposit incomes
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   referralCode: { type: String, unique: true }, // Referral system
   directReferrals: { type: Number, default: 0 }, // Direct referrals count

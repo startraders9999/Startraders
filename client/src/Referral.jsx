@@ -151,13 +151,7 @@ const Referral = () => {
         <div className="referral-section-title">Referral Income History</div>
         <div className="overflow-x-auto bg-white rounded-lg shadow-lg p-4 responsive-wrapper">
           {overview?.incomeHistory && overview.incomeHistory.length > 0 ? (
-            <ReferralList 
-              data={overview.incomeHistory.filter(r => {
-                const desc = r.description ? r.description.toLowerCase() : '';
-                return desc.includes('deposit') && !desc.includes('trading');
-              })} 
-              type="history" 
-            />
+            <ReferralList data={overview.incomeHistory} type="history" />
           ) : (
             <div className="referral-no-data">No referral income history found</div>
           )}
